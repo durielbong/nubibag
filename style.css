@@ -1,7 +1,19 @@
 /* CSS Reset & Variables */
 :root {
-  --font-serif: 'Noto Serif JP', serif;
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* 명조체 (제목/브랜드 강조용): Shippori Mincho + 일본 내장 명조 */
+  --font-serif: 'Shippori Mincho', 'Noto Serif JP', "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", serif;
+
+  /* 고딕체 (본문/메뉴/기본): Noto Sans JP + 일본 대표 내장 고딕 (Hiragino Sans, Yu Gothic) */
+  --font-sans: 'Noto Sans JP', 'Plus Jakarta Sans', "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+
+  /* ... 나머지 동일 */
+}
+
+/* 본문 기본 폰트 설정 */
+body {
+  font-family: var(--font-sans);
+  letter-spacing: 0.03em; /* 일본어 폰트는 자간을 살짝 넓혀주면 훨씬 세련되어 보입니다 */
+}
   --bg-color: #FAFAFA;
   --card-bg: #FFFFFF;
   --text-main: #1A1A1A;
