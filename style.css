@@ -1,19 +1,7 @@
 /* CSS Reset & Variables */
 :root {
-  /* 명조체 (제목/브랜드 강조용): Shippori Mincho + 일본 내장 명조 */
-  --font-serif: 'Shippori Mincho', 'Noto Serif JP', "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", serif;
-
-  /* 고딕체 (본문/메뉴/기본): Noto Sans JP + 일본 대표 내장 고딕 (Hiragino Sans, Yu Gothic) */
-  --font-sans: 'Noto Sans JP', 'Plus Jakarta Sans', "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
-
-  /* ... 나머지 동일 */
-}
-
-/* 본문 기본 폰트 설정 */
-body {
-  font-family: var(--font-sans);
-  letter-spacing: 0.03em; /* 일본어 폰트는 자간을 살짝 넓혀주면 훨씬 세련되어 보입니다 */
-}
+  --font-serif: 'Shippori Mincho', 'Noto Serif JP', "Yu Mincho", "YuMincho", serif;
+  --font-sans: 'Noto Sans JP', 'Plus Jakarta Sans', "Hiragino Sans", "Meiryo", sans-serif;
   --bg-color: #FAFAFA;
   --card-bg: #FFFFFF;
   --text-main: #1A1A1A;
@@ -38,6 +26,7 @@ body {
   color: var(--text-main);
   background-color: var(--bg-color);
   line-height: 1.7;
+  letter-spacing: 0.03em;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -46,7 +35,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-color);
   padding: 18px 0;
@@ -62,10 +51,9 @@ body {
 }
 
 .logo {
-  font-family: var(--font-sans);
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: 2.5px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 2px;
   text-decoration: none;
   color: var(--text-main);
 }
@@ -74,8 +62,12 @@ body {
   color: #888;
 }
 
+.nav {
+  display: flex;
+  gap: 24px;
+}
+
 .nav a {
-  margin-left: 28px;
   text-decoration: none;
   color: var(--text-sub);
   font-size: 0.85rem;
@@ -92,7 +84,7 @@ body {
 .hero {
   position: relative;
   height: 75vh;
-  min-height: 500px;
+  min-height: 480px;
   background: #222 url('images/hero.jpg') no-repeat center/cover;
   display: flex;
   align-items: center;
@@ -108,13 +100,14 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.45);
 }
 
 .hero-content {
   position: relative;
   z-index: 1;
   max-width: 700px;
+  width: 100%;
 }
 
 .hero-sub {
@@ -127,11 +120,11 @@ body {
 
 .hero h1 {
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  font-weight: 400;
+  font-size: clamp(2.1rem, 5vw, 3.4rem);
+  font-weight: 600;
   line-height: 1.3;
   margin-bottom: 20px;
-  letter-spacing: -0.5px;
+  word-break: keep-all;
 }
 
 .hero-desc {
@@ -161,13 +154,13 @@ body {
 /* Section Common */
 .section {
   max-width: 1100px;
-  margin: 100px auto;
+  margin: 90px auto;
   padding: 0 24px;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 45px;
 }
 
 .sub-title {
@@ -181,7 +174,7 @@ body {
 .section-header h2 {
   font-family: var(--font-serif);
   font-size: 1.8rem;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: 2px;
 }
 
@@ -193,23 +186,23 @@ body {
 .about-content {
   max-width: 680px;
   margin: 0 auto;
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   color: var(--text-sub);
-  line-height: 2;
+  line-height: 2.1;
   word-break: keep-all;
 }
 
-/* Products Section Grid */
+/* Products Section Grid (반응형 그리드) */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 32px;
 }
 
 .product-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -252,7 +245,7 @@ body {
   font-size: 0.88rem;
   color: var(--text-sub);
   margin-bottom: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .product-tag {
@@ -271,13 +264,16 @@ body {
   color: var(--text-sub);
   margin-bottom: 30px;
   font-size: 0.95rem;
+  word-break: keep-all;
 }
 
 .map-wrapper {
+  width: 100%;
+  height: 400px;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  margin-bottom: 50px;
+  margin-bottom: 40px;
   border: 1px solid var(--border-color);
 }
 
@@ -285,7 +281,7 @@ body {
 .line-card {
   background: #FFFFFF;
   border: 1px solid var(--border-color);
-  padding: 40px;
+  padding: 40px 24px;
   text-align: center;
   border-radius: 8px;
   max-width: 600px;
@@ -313,13 +309,16 @@ body {
   font-size: 0.9rem;
   color: var(--text-sub);
   margin-bottom: 24px;
+  word-break: keep-all;
 }
 
 .line-button {
   display: inline-block;
+  width: 100%;
+  max-width: 320px;
   background-color: var(--accent-line);
   color: white;
-  padding: 14px 32px;
+  padding: 14px 20px;
   border-radius: 6px;
   text-decoration: none;
   font-weight: 600;
@@ -337,13 +336,13 @@ body {
   border-top: 1px solid var(--border-color);
   background: #FFFFFF;
   padding: 40px 0;
-  margin-top: 100px;
+  margin-top: 90px;
   text-align: center;
 }
 
 .footer-logo {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 3px;
   margin-bottom: 8px;
 }
@@ -353,36 +352,73 @@ body {
   color: #A0A0A0;
 }
 
-/* Responsive Styles (Mobile Optimization) */
-@media (max-width: 900px) {
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
+/* ==========================================
+   반응형 모바일 및 태블릿 최적화 (Media Queries)
+   ========================================== */
 
-@media (max-width: 600px) {
-  .header-container {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .nav a {
-    margin: 0 10px;
+/* 태블릿 (화면 너비 768px 이하) */
+@media (max-width: 768px) {
+  .section {
+    margin: 60px auto;
+    padding: 0 18px;
   }
 
   .hero {
     height: 65vh;
+    min-height: 420px;
+  }
+
+  .map-wrapper {
+    height: 320px;
+  }
+}
+
+/* 모바일 스마트폰 (화면 너비 576px 이하) */
+@media (max-width: 576px) {
+  .header-container {
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .nav {
+    gap: 18px;
+  }
+
+  .nav a {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+  }
+
+  .hero-sub {
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+  }
+
+  .hero-desc {
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+  }
+
+  .btn-primary {
+    padding: 12px 24px;
+    font-size: 0.75rem;
   }
 
   .product-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* 모바일에서 1열로 세로 정렬 */
+    gap: 24px;
   }
 
-  .section {
-    margin: 60px auto;
+  .product-image-wrapper {
+    height: 240px;
   }
 
   .line-card {
-    padding: 24px;
+    padding: 28px 16px;
+  }
+
+  .map-wrapper {
+    height: 260px; /* 모바일 지도 높이 조절 */
   }
 }
