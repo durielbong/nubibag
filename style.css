@@ -1,0 +1,97 @@
+/* 기본 리셋 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  color: #333;
+  line-height: 1.6;
+  background-color: #fafafa;
+}
+
+/* 헤더 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+}
+
+.nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+/* 메인 비주얼 */
+.hero {
+  height: 60vh;
+  background: #e2e2e2 url('images/hero.jpg') no-repeat center/cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+}
+
+/* 섹션 공통 */
+.section {
+  max-width: 1000px;
+  margin: 60px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.section h2 {
+  font-size: 1.8rem;
+  letter-spacing: 3px;
+  margin-bottom: 30px;
+}
+
+/* 제품 그리드 */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.product-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* LINE 버튼 스타일 */
+.line-button {
+  display: inline-block;
+  background-color: #06C755; /* 라인 브랜드 컬러 */
+  color: white;
+  padding: 14px 28px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+.line-button:hover {
+  opacity: 0.9;
+}
+
+/* 푸터 */
+.footer {
+  text-align: center;
+  padding: 40px;
+  font-size: 0.8rem;
+  color: #888;
+}
