@@ -3,64 +3,131 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>누비백 브랜드 / 매장 안내</title>
+  <title>NUBI BAG | Busan Handmade Craft</title>
+
+  <!-- 웹 폰트 적용 (heirest 감성의 고급스러운 Serif & Sans-serif) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <!-- 1. 헤더 / 상단 네비게이션 -->
   <header class="header">
-    <div class="logo">BRAND NAME</div>
-    <nav class="nav">
-      <a href="#about">ABOUT</a>
-      <a href="#products">PRODUCTS</a>
-      <a href="#access">ACCESS</a>
-    </nav>
+    <div class="header-container">
+      <a href="#" class="logo">HANILBUBU<span>.</span></a>
+      <nav class="nav">
+        <a href="#about">ABOUT</a>
+        <a href="#products">PRODUCTS</a>
+        <a href="#access">ACCESS</a>
+      </nav>
+    </div>
   </header>
 
   <!-- 2. 메인 비주얼 (Hero Section) -->
   <section class="hero">
-    <div class="hero-text">
-      <h1>부산의 온기를 담은 누비백</h1>
-      <p>HANDMADE NUBI BAG FROM BUSAN</p>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <span class="hero-sub">HANDMADE NUBI BAG</span>
+      <h1>釜山の 온기를 담은<br>누비백 컬렉션</h1>
+      <p class="hero-desc">Tradition meets modern aesthetic from Busan International Market</p>
+      <a href="#products" class="btn-primary">VIEW COLLECTION</a>
     </div>
   </section>
 
-  <!-- 3. 제품 소개 (Products) -->
+  <!-- 3. 브랜드 소개 (About Section) -->
+  <section id="about" class="section about-section">
+    <div class="section-header">
+      <span class="sub-title">CRAFTMANSHIP</span>
+      <h2>ABOUT BRAND</h2>
+    </div>
+    <div class="about-content">
+      <p>
+        부산 국제시장에서 시작된 한일부부의 핸드메이드 누비백입니다.<br>
+        가볍고 포근한 누비 원단과 꼼꼼한 자수로 완성된 정성을 만나보세요.
+      </p>
+    </div>
+  </section>
+
+  <!-- 4. 제품 소개 (Products) -->
   <section id="products" class="section">
-    <h2>PRODUCTS</h2>
+    <div class="section-header">
+      <span class="sub-title">HANDMADE COLLECTION</span>
+      <h2>PRODUCTS</h2>
+    </div>
+
     <div class="product-grid">
+      <!-- 제품 카드 1 -->
       <div class="product-card">
-        <img src="images/product1.jpg" alt="누비백 제품 1">
-        <h3>Nubi Tote Bag</h3>
-        <p>가볍고 포근한 누비 소재의 토트백입니다.</p>
+        <div class="product-image-wrapper">
+          <img src="images/product1.jpg" alt="Nubi Tote Bag" onerror="this.src='https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'">
+        </div>
+        <div class="product-info">
+          <h3>Nubi Classic Tote Bag</h3>
+          <p class="product-desc">가볍고 포근한 촉감의 데일리 누비 토트백입니다.</p>
+          <span class="product-tag">Handmade in Busan</span>
+        </div>
       </div>
-      <!-- 추가 제품 카드는 복사해서 사용 -->
+
+      <!-- 제품 카드 2 -->
+      <div class="product-card">
+        <div class="product-image-wrapper">
+          <img src="images/product2.jpg" alt="Nubi Shoulder Bag" onerror="this.src='https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'">
+        </div>
+        <div class="product-info">
+          <h3>Nubi Shoulder Bag</h3>
+          <p class="product-desc">넉넉한 수납공간과 감각적인 자수가 들어간 숄더백입니다.</p>
+          <span class="product-tag">Handmade in Busan</span>
+        </div>
+      </div>
+
+      <!-- 제품 카드 3 -->
+      <div class="product-card">
+        <div class="product-image-wrapper">
+          <img src="images/product3.jpg" alt="Nubi Pouch" onerror="this.src='https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'">
+        </div>
+        <div class="product-info">
+          <h3>Nubi Mini Pouch</h3>
+          <p class="product-desc">화장품 및 소품을 깔끔하게 보관할 수 있는 파우치입니다.</p>
+          <span class="product-tag">Handmade in Busan</span>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- 4. 가게 위치 & LINE 상담 (Access & Contact) -->
+  <!-- 5. 가게 위치 & LINE 상담 (Access & Contact) -->
   <section id="access" class="section access-section">
-    <h2>STORE LOCATION & CONTACT</h2>
-    <p>부산 국제시장에 위치한 오프라인 매장 안내입니다.</p>
-    
-    <!-- 구글 지도 퍼가기 (Embed) -->
-    <div class="map-container">
-      <iframe src="https://www.google.com/maps/embed?pb=YOUR_GOOGLE_MAPS_LINK" width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+    <div class="section-header">
+      <span class="sub-title">VISIT US & CONTACT</span>
+      <h2>STORE LOCATION</h2>
     </div>
 
-    <!-- LINE 상담 연결 버튼 -->
-    <div class="line-cta">
-      <p>제품 문의 및 일본 직배송 관련 상담은 공식 LINE으로 연락 주세요.</p>
-      <a href="https://line.me/R/ti/p/@YOUR_LINE_ID" target="_blank" class="line-button">
-        LINEで 문의하기 (LINE公式)
+    <p class="access-desc">부산 국제시장에 위치한 오프라인 매장 안내입니다. 방문 시 직접 제품을 확인하실 수 있습니다.</p>
+
+    <!-- 구글 지도 -->
+    <div class="map-wrapper">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3264.444761003893!2d129.0268!3d35.1011!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3568e91f1b2b2b2b%3A0x0!2z67aA7IKwIOq1reqcjuC9nOyaqOyEnA!5e0!3m2!1sko!2skr!4v1600000000000!5m2!1sko!2skr" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+
+    <!-- LINE 상담 CTA 카드 -->
+    <div class="line-card">
+      <div class="line-icon-badge">LINE</div>
+      <h3>LINE Official Support</h3>
+      <p>製品のご注文・配送に関するお問い合わせは公式LINEより受け付けております。</p>
+      <a href="https://line.me/R/ti/p/@YOUR_LINE_ID" target="_blank" rel="noopener noreferrer" class="line-button">
+        LINEで問い合わせる (公式LINE)
       </a>
     </div>
   </section>
 
-  <!-- 5. 푸터 -->
+  <!-- 6. 푸터 -->
   <footer class="footer">
-    <p>&copy; 2026 Hanilbubu / Nubi Bag. All rights reserved.</p>
+    <div class="footer-container">
+      <p class="footer-logo">HANILBUBU</p>
+      <p class="copyright">&copy; 2026 HANILBUBU / NUBI BAG. All rights reserved.</p>
+    </div>
   </footer>
 
 </body>
