@@ -2,18 +2,25 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>NUBI BAG | Busan Handmade Craft</title>
 
-  <!-- 일본 트렌드 폰트 적용 (Shippori Mincho + Noto Sans JP) -->
+  <!-- 앱처럼 보이게 하는 설정 (PWA / 홈 화면 추가 시 브라우저 주소창 없이 실행) -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FAFAFA">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="NUBI BAG">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+  <link rel="icon" href="images/icon-192.png">
+
+  <!-- 웹 폰트 적용 (heirest 감성의 고급스러운 Serif & Sans-serif) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
-  
-  <!-- Vercel Analytics 통계 스크립트 -->
-  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -30,11 +37,11 @@
   </header>
 
   <!-- 2. 메인 비주얼 (Hero Section) -->
-  <section class="hero">
+  <section id="home" class="hero">
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <span class="hero-sub">HANDMADE NUBI BAG</span>
-      <h1>日韓夫婦が作る<br>ヌビバッグ</h1>
+      <h1>釜山の 온기를 담은<br>누비백 컬렉션</h1>
       <p class="hero-desc">Tradition meets modern aesthetic from Busan International Market</p>
       <a href="#products" class="btn-primary">VIEW COLLECTION</a>
     </div>
@@ -48,8 +55,8 @@
     </div>
     <div class="about-content">
       <p>
-        釜山（プサン）の国際市場でショップを営む、日韓夫婦です。<br>
-        軽くて温かみのあるヌビ（キルティング）生地と、カスタム刺繍が楽しめるオリジナルのヌビバッグをぜひご覧ください。
+        부산 국제시장에서 시작된 한일부부의 핸드메이드 누비백입니다.<br>
+        가볍고 포근한 누비 원단과 꼼꼼한 자수로 완성된 정성을 만나보세요.
       </p>
     </div>
   </section>
@@ -69,7 +76,7 @@
         </div>
         <div class="product-info">
           <h3>Nubi Classic Tote Bag</h3>
-          <p class="product-desc">軽くてふんわりとした肌触りのデイリーヌビトートバッグです。</p>
+          <p class="product-desc">가볍고 포근한 촉감의 데일리 누비 토트백입니다.</p>
           <span class="product-tag">Handmade in Busan</span>
         </div>
       </div>
@@ -81,7 +88,7 @@
         </div>
         <div class="product-info">
           <h3>Nubi Shoulder Bag</h3>
-          <p class="product-desc">たっぷり収納できるサイズ感と、こだわりの刺繍が魅力のショルダーバッグです。</p>
+          <p class="product-desc">넉넉한 수납공간과 감각적인 자수가 들어간 숄더백입니다.</p>
           <span class="product-tag">Handmade in Busan</span>
         </div>
       </div>
@@ -93,7 +100,7 @@
         </div>
         <div class="product-info">
           <h3>Nubi Mini Pouch</h3>
-          <p class="product-desc">コスメや小物類をスッキリ収納できる可愛らしいポーチです。</p>
+          <p class="product-desc">화장품 및 소품을 깔끔하게 보관할 수 있는 파우치입니다.</p>
           <span class="product-tag">Handmade in Busan</span>
         </div>
       </div>
@@ -107,15 +114,15 @@
       <h2>STORE LOCATION</h2>
     </div>
 
-    <p class="access-desc">釜山国際市場の実店舗のご案内です。ご来店の際は実際に手に取ってご覧いただけます。</p>
+    <p class="access-desc">부산 국제시장에 위치한 오프라인 매장 안내입니다. 방문 시 직접 제품을 확인하실 수 있습니다.</p>
 
-    <!-- 반응형 구글 지도 -->
+    <!-- 구글 지도 -->
     <div class="map-wrapper">
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3264.444761003893!2d129.0268!3d35.1011!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3568e91f1b2b2b2b%3A0x0!2z67aA7IKwIOq1reqcjuC9nOyaqOyEnA!5e0!3m2!1sko!2skr!4v1600000000000!5m2!1sko!2skr" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3264.444761003893!2d129.0268!3d35.1011!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3568e91f1b2b2b2b%3A0x0!2z67aA7IKwIOq1reqcjuC9nOyaqOyEnA!5e0!3m2!1sko!2skr!4v1600000000000!5m2!1sko!2skr" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
     </div>
 
     <!-- LINE 상담 CTA 카드 -->
-    <div class="line-card">
+    <div id="contact" class="line-card">
       <div class="line-icon-badge">LINE</div>
       <h3>LINE Official Support</h3>
       <p>製品のご注文・配送に関するお問い合わせは公式LINEより受け付けております。</p>
@@ -132,6 +139,63 @@
       <p class="copyright">&copy; 2026 HANILBUBU / NUBI BAG. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- 7. 모바일 전용 하단 탭바 (앱처럼 보이게 하는 핵심 요소) -->
+  <nav class="tabbar" id="tabbar">
+    <a href="#home" class="tabbar-item" data-target="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9"/></svg>
+      <span>HOME</span>
+    </a>
+    <a href="#about" class="tabbar-item" data-target="about">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
+      <span>ABOUT</span>
+    </a>
+    <a href="#products" class="tabbar-item" data-target="products">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8.5 12 4l6 4.5"/><rect x="4.5" y="8.5" width="15" height="11" rx="1.2"/></svg>
+      <span>PRODUCTS</span>
+    </a>
+    <a href="#access" class="tabbar-item" data-target="access">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7-6.4 7-11.5A7 7 0 0 0 5 9.5C5 14.6 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.3"/></svg>
+      <span>ACCESS</span>
+    </a>
+    <a href="#contact" class="tabbar-item" data-target="contact">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 5.5L20 7"/></svg>
+      <span>CONTACT</span>
+    </a>
+  </nav>
+
+  <script>
+    // 하단 탭바 active 상태 + 스크롤 스파이 (앱 느낌의 인터랙션)
+    (function () {
+      var sections = ['home', 'about', 'products', 'access', 'contact']
+        .map(function (id) { return document.getElementById(id); })
+        .filter(Boolean);
+      var tabs = document.querySelectorAll('.tabbar-item');
+
+      function setActive(id) {
+        tabs.forEach(function (tab) {
+          tab.classList.toggle('is-active', tab.dataset.target === id);
+        });
+      }
+
+      if ('IntersectionObserver' in window && sections.length) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) setActive(entry.target.id);
+          });
+        }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+
+        sections.forEach(function (section) { observer.observe(section); });
+      }
+
+      // 탭 터치 시 눌림 피드백
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          setActive(tab.dataset.target);
+        });
+      });
+    })();
+  </script>
 
 </body>
 </html>
