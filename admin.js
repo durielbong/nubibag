@@ -7,7 +7,61 @@
 
 const NEW_CATEGORY_VALUE = '__new__';
 
+// ------------------------------------------------------------
+// 管理者モード判定
+// URL に ?admin=シークレットキー を付けてアクセスした端末だけ、
+// 以後 localStorage に記憶されて管理者用ボタンが表示される。
+// お客様が通常のURLでアクセスした場合は一切表示されない。
+// ------------------------------------------------------------
+const ADMIN_SECRET = 'nubi2026admin'; // ← 必ずご自身だけが知る文字列に変更してください
+const ADMIN_FLAG_KEY = 'busanNubi_isAdmin';
+
+let isAdminMode = false;
+
+function initAdminMode() {
+    const params = new URLSearchParams(window.location.search);
+    const providedKey = params.get('admin');
+
+    if (providedKey && providedKey === ADMIN_SECRET) {
+        try {
+            localStorage.setItem(ADMIN_FLAG_KEY, 'true');
+        } catch (e) {
+            console.error('管理者フラグの保存に失敗しました', e);
+        }
+        // アドレスバーやスクリーンショットにキーが残らないよう、URLから消す
+        params.delete('admin');
+        const query = params.toString();
+        const newUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
+        window.history.replaceState({}, '', newUrl);
+    }
+
+    try {
+        isAdminMode = localStorage.getItem(ADMIN_FLAG_KEY) === 'true';
+    } catch (e) {
+        isAdminMode = false;
+    }
+
+    const adminBtn = document.getElementById('admin-btn');
+    if (adminBtn) {
+        adminBtn.classList.toggle('hidden', !isAdminMode);
+    }
+}
+
+function exitAdminMode() {
+    try {
+        localStorage.removeItem(ADMIN_FLAG_KEY);
+    } catch (e) {
+        console.error('管理者フラグの削除に失敗しました', e);
+    }
+    isAdminMode = false;
+    const adminBtn = document.getElementById('admin-btn');
+    if (adminBtn) adminBtn.classList.add('hidden');
+    closeAdminModal();
+    showToast('管理者モードを終了しました');
+}
+
 function openAdminModal() {
+    if (!isAdminMode) return; // 保険：管理者以外は開けない
     populateAdminCategoryOptions();
     document.getElementById('admin-form').reset();
     toggleNewCategoryFields();

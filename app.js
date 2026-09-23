@@ -7,6 +7,9 @@ let activeCategory = null;
 let activeColorFilter = 'all';
 
 window.onload = function () {
+    if (typeof initAdminMode === 'function') {
+        initAdminMode();    // admin.js: URLのシークレットキー確認・管理者ボタン表示制御
+    }
     buildCategories();     // data.js: 基本データ + 登録データを統合
     renderCategories();
     if (typeof populateAdminCategoryOptions === 'function') {
