@@ -1,134 +1,708 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NUBI BAG | Busan Handmade Craft</title>
-
-  <!-- 웹 폰트 적용 (heirest 감성의 고급스러운 Serif & Sans-serif) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUSAN NUBI & COSMETICS - 国際市場 ヌビバッグ＆韓国コスメ専門店</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fdfbf7',
+                            100: '#f7f2ea',
+                            200: '#eee3d3',
+                            500: '#c59b6d',
+                            600: '#a67b4c',
+                            800: '#5a4228',
+                            900: '#2c1e11'
+                        },
+                        nubi: {
+                            pink: '#e8c4c4',
+                            beige: '#e2d4c5',
+                            mint: '#b2c8ba',
+                            charcoal: '#4a4a4a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans JP"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #fcfbfa;
+            color: #333333;
+        }
+        .serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.08);
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c59b6d;
+            border-radius: 3px;
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-200">
 
-  <!-- 1. 헤더 / 상단 네비게이션 -->
-  <header class="header">
-    <div class="header-container">
-      <a href="#" class="logo">HANILBUBU<span>.</span></a>
-      <nav class="nav">
-        <a href="#about">ABOUT</a>
-        <a href="#products">PRODUCTS</a>
-        <a href="#access">ACCESS</a>
-      </nav>
-    </div>
-  </header>
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <!-- Brand Logo -->
+                <div class="flex items-center cursor-pointer" onclick="showView('home')">
+                    <span class="text-2xl font-bold serif-title text-brand-800 tracking-wider">BUSAN NUBI</span>
+                    <span class="ml-2 text-xs bg-brand-100 text-brand-800 px-2 py-0.5 rounded-full font-medium hidden sm:inline-block">国際市場店</span>
+                </div>
 
-  <!-- 2. 메인 비주얼 (Hero Section) -->
-  <section class="hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <span class="hero-sub">HANDMADE NUBI BAG</span>
-      <h1>釜山の 온기를 담은<br>누비백 컬렉션</h1>
-      <p class="hero-desc">Tradition meets modern aesthetic from Busan International Market</p>
-      <a href="#products" class="btn-primary">VIEW COLLECTION</a>
-    </div>
-  </section>
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex space-x-8 text-sm font-medium text-gray-700">
+                    <button onclick="showView('home')" class="hover:text-brand-600 transition">ホーム (Home)</button>
+                    <button onclick="scrollToProducts()" class="hover:text-brand-600 transition">商品一覧 (Products)</button>
+                    <button onclick="openStoreModal()" class="hover:text-brand-600 transition">店舗案内 (Store Info)</button>
+                </nav>
 
-  <!-- 3. 브랜드 소개 (About Section) -->
-  <section id="about" class="section about-section">
-    <div class="section-header">
-      <span class="sub-title">CRAFTMANSHIP</span>
-      <h2>ABOUT BRAND</h2>
-    </div>
-    <div class="about-content">
-      <p>
-        부산 국제시장에서 시작된 한일부부의 핸드메이드 누비백입니다.<br>
-        가볍고 포근한 누비 원단과 꼼꼼한 자수로 완성된 정성을 만나보세요.
-      </p>
-    </div>
-  </section>
-
-  <!-- 4. 제품 소개 (Products) -->
-  <section id="products" class="section">
-    <div class="section-header">
-      <span class="sub-title">HANDMADE COLLECTION</span>
-      <h2>PRODUCTS</h2>
-    </div>
-
-    <div class="product-grid">
-      <!-- 제품 카드 1 -->
-      <div class="product-card">
-        <div class="product-image-wrapper">
-          <img src="images/product1.jpg" alt="Nubi Tote Bag" onerror="this.src='https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'">
+                <!-- Language / Store Access quick button -->
+                <div class="flex items-center space-x-3">
+                    <button onclick="openStoreModal()" class="flex items-center space-x-1 bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 px-3 py-1.5 rounded-full text-xs font-medium transition">
+                        <i class="fa-solid me-1 fa-location-dot text-brand-600"></i>
+                        <span>アクセス MAP</span>
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="product-info">
-          <h3>Nubi Classic Tote Bag</h3>
-          <p class="product-desc">가볍고 포근한 촉감의 데일리 누비 토트백입니다.</p>
-          <span class="product-tag">Handmade in Busan</span>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow">
+
+        <div id="hero-banner" class="relative bg-brand-50 border-b border-brand-100 overflow-hidden py-10 sm:py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <span class="text-xs tracking-widest text-brand-600 uppercase font-semibold">Handmade in Busan • Gukje Market</span>
+                        <h1 class="text-2xl sm:text-4xl font-bold text-gray-900 mt-2 leading-tight">
+                            ふんわり軽くて優しい質感。<br>
+                            釜山・国際市場のヌ비バッグ専門店
+                        </h1>
+                        <p class="mt-3 text-sm sm:text-base text-gray-600 leading-relaxed">
+                            韓国伝統のキルティング生地「ヌビ（イブル）」を使用したハンドメイドバッグと、厳選された人気韓国コスメを取り扱っております。
+                        </p>
+                        <div class="mt-6 flex flex-wrap gap-3">
+                            <span class="inline-flex items-center text-xs bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-gray-700 shadow-sm">
+                                <i class="fa-solid fa-check text-green-500 mr-1.5"></i> 免税手続き対応
+                            </span>
+                            <span class="inline-flex items-center text-xs bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-gray-700 shadow-sm">
+                                <i class="fa-solid fa-check text-green-500 mr-1.5"></i> 日本語スタッフ在籍
+                            </span>
+                            <span class="inline-flex items-center text-xs bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-gray-700 shadow-sm">
+                                <i class="fa-solid fa-check text-green-500 mr-1.5"></i> クレジットカード決済可
+                            </span>
+                        </div>
+                    </div>
+                    <div class="relative rounded-2xl overflow-hidden shadow-lg h-56 sm:h-72">
+                        <img src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=1200" 
+                             alt="Nubi Bag Banner" 
+                             class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end p-6">
+                            <span class="text-white text-sm font-light">国際市場メインストリート徒歩1分</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <!-- 제품 카드 2 -->
-      <div class="product-card">
-        <div class="product-image-wrapper">
-          <img src="images/product2.jpg" alt="Nubi Shoulder Bag" onerror="this.src='https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'">
+        <!-- VIEW 1: CATEGORY SELECTION (HOME) -->
+        <section id="view-home" class="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+                <span class="text-xs font-bold tracking-widest text-brand-600 uppercase">ヌビバッグコレクション</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 serif-title tracking-wide">PRODUCTS CATEGORY</h2>
+                <div class="w-12 h-0.5 bg-brand-500 mx-auto mt-3"></div>
+                <p class="text-xs sm:text-sm text-gray-500 mt-3">気になるカテゴリーを選択すると、詳細な商品ラインナップをご覧いただけます。</p>
+            </div>
+
+            <!-- Product Category Grid (Matching user provided card layout & screenshot style) -->
+            <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                <!-- Javascript will populate category cards here -->
+            </div>
+        </section>
+
+        <!-- VIEW 2: CATEGORY DETAIL & PRODUCTS LIST -->
+        <section id="view-category-detail" class="hidden py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+            <!-- Breadcrumb Navigation -->
+            <div class="flex items-center text-xs text-gray-500 mb-6 space-x-2">
+                <button onclick="showView('home')" class="hover:text-brand-600 transition flex items-center">
+                    <i class="fa-solid fa-house mr-1"></i> HOME
+                </button>
+                <span>/</span>
+                <span id="breadcrumb-category" class="font-medium text-gray-900">Sサイズ ヌビバッグ</span>
+            </div>
+
+            <!-- Category Header -->
+            <div class="bg-brand-50 border border-brand-100 rounded-2xl p-6 sm:p-8 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-semibold text-brand-600 tracking-wider uppercase">CATEGORY LINEUP</span>
+                    <h2 id="category-detail-title" class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">Sサイズのヌビバッグ</h2>
+                    <p id="category-detail-desc" class="text-sm text-gray-600 mt-2">軽くてふんわりとした肌触りの、デイリーに活躍するヌビトートバッグです。</p>
+                </div>
+                <button onclick="showView('home')" class="self-start md:self-center px-4 py-2 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm flex items-center">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> カテゴリー一覧へ戻る
+                </button>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-200 text-xs">
+                <div class="flex items-center space-x-2 overflow-x-auto pb-2 sm:pb-0">
+                    <span class="text-gray-500 font-medium mr-2">カラー絞り込み:</span>
+                    <button onclick="filterColor('all')" class="color-filter-btn px-3 py-1.5 rounded-full bg-brand-800 text-white font-medium" data-color="all">すべて</button>
+                    <button onclick="filterColor('アイボリー')" class="color-filter-btn px-3 py-1.5 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" data-color="アイボリー">アイボリー</button>
+                    <button onclick="filterColor('ピンク')" class="color-filter-btn px-3 py-1.5 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" data-color="ピンク">ピンク</button>
+                    <button onclick="filterColor('ベージュ')" class="color-filter-btn px-3 py-1.5 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" data-color="ベージュ">ベージュ</button>
+                    <button onclick="filterColor('チャコール')" class="color-filter-btn px-3 py-1.5 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" data-color="チャコール">チャコール</button>
+                </div>
+                <div class="text-gray-500">
+                    全 <span id="item-count" class="font-bold text-gray-800">0</span> 件の商品
+                </div>
+            </div>
+
+            <!-- Product Items Grid -->
+            <div id="product-items-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Javascript dynamic items -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: ITEM DETAIL MODAL -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative fade-in">
+            <!-- Close Button -->
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 z-10 w-9 h-9 bg-white/80 hover:bg-white rounded-full flex items-center justify-center text-gray-600 shadow-md transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2">
+                <!-- Image Container -->
+                <div class="bg-gray-50 p-6 flex flex-col justify-center items-center relative">
+                    <img id="modal-product-image" src="" alt="Product Detail" class="w-full h-72 sm:h-80 object-cover rounded-xl shadow-md">
+                    <div id="modal-color-badges" class="flex gap-2 mt-4">
+                        <!-- Color Swatches -->
+                    </div>
+                </div>
+
+                <!-- Info Container -->
+                <div class="p-6 sm:p-8 flex flex-col justify-between">
+                    <div>
+                        <span id="modal-product-category" class="text-xs font-semibold text-brand-600 tracking-wider uppercase">CATEGORIES</span>
+                        <h3 id="modal-product-title" class="text-xl font-bold text-gray-900 mt-1">Sサイズ ヌビトート (アイボリー)</h3>
+                        
+                        <div class="mt-3 flex items-baseline space-x-3">
+                            <span id="modal-product-price-jpy" class="text-2xl font-bold text-brand-800">￥3,200</span>
+                            <span id="modal-product-price-krw" class="text-sm text-gray-400 font-normal">(28,000 KRW)</span>
+                        </div>
+
+                        <div class="mt-4 border-t border-b border-gray-100 py-3 my-3">
+                            <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">商品説明 (Description)</h4>
+                            <p id="modal-product-desc" class="text-xs text-gray-600 leading-relaxed">
+                                軽くてやわらかな手触りが魅力のピュアコットンヌビバッグ。ちょっとしたお出かけやサブバッグとして最適なサイズ感です。
+                            </p>
+                        </div>
+
+                        <!-- Specs List -->
+                        <div class="space-y-2 text-xs text-gray-600">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">サイズ (Dimensions):</span>
+                                <span id="modal-product-size" class="font-medium text-gray-800">W28cm x H20cm x D10cm</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">素材 (Material):</span>
+                                <span class="font-medium text-gray-800">綿100% (コットンキルティング)</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">生産地 (Origin):</span>
+                                <span class="font-medium text-brand-600">釜山 ハンドメイド (Made in Busan)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Store Visit CTA -->
+                    <div class="mt-8 pt-4 border-t border-gray-100">
+                        <div class="bg-brand-50 p-3 rounded-xl mb-3 flex items-center space-x-3 text-xs text-brand-800">
+                            <i class="fa-solid fa-store text-brand-600 text-base"></i>
+                            <div>
+                                <p class="font-bold">国際市場の実店舗でご購入いただけます</p>
+                                <p class="text-[11px] text-gray-500">실제 매장에서 직접 원단과 색상을 확인해 보세요.</p>
+                            </div>
+                        </div>
+                        <button onclick="openStoreModal()" class="w-full py-3 bg-brand-800 hover:bg-brand-900 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <span>店舗の場所・アクセスを確認する</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="product-info">
-          <h3>Nubi Shoulder Bag</h3>
-          <p class="product-desc">넉넉한 수납공간과 감각적인 자수가 들어간 숄더백입니다.</p>
-          <span class="product-tag">Handmade in Busan</span>
+    </div>
+
+    <!-- MODAL 2: STORE LOCATION & VISIT GUIDE -->
+    <div id="store-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative fade-in">
+            <button onclick="closeStoreModal()" class="absolute top-4 right-4 z-10 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <span class="text-xs font-bold text-brand-600 tracking-wider uppercase">GUKJE MARKET STORE</span>
+                <h3 class="text-2xl font-bold text-gray-900 mt-1">国際市場 店舗案内 (Store Info)</h3>
+                <p class="text-xs text-gray-500 mt-1">釜山旅行の際はぜひお気軽にお立ち寄りください！</p>
+            </div>
+
+            <!-- Store Details -->
+            <div class="space-y-4 text-xs sm:text-sm">
+                <div class="bg-gray-50 p-4 rounded-xl space-y-2 border border-gray-100">
+                    <div class="flex items-start space-x-3">
+                        <i class="fa-solid fa-location-dot text-brand-600 mt-1"></i>
+                        <div>
+                            <span class="font-bold text-gray-800 block">住所 (Address)</span>
+                            <span class="text-gray-600">釜山広域市 中区 新昌洞4街 国際市場 6공구 (6工区)</span>
+                            <span class="block text-gray-400 text-xs">(부산 중구 신창동4가 국제시장 6공구)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3 pt-2 border-t border-gray-200">
+                        <i class="fa-solid fa-subway text-brand-600"></i>
+                        <div>
+                            <span class="font-bold text-gray-800">最寄り駅:</span>
+                            <span class="text-gray-600">地下鉄1号線 チャガルチ駅 (Jagalchi) 7番出口 徒歩5分</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-clock text-brand-600"></i>
+                        <div>
+                            <span class="font-bold text-gray-800">営業時間:</span>
+                            <span class="text-gray-600">10:00 ~ 19:00 (年中無休)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Japanese Assistance Info -->
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center space-x-3">
+                    <i class="fa-solid fa-comments text-amber-600 text-xl"></i>
+                    <div>
+                        <p class="font-bold text-amber-900 text-xs sm:text-sm">日本語でのご案内も可能です</p>
+                        <p class="text-amber-700 text-xs mt-0.5">免税手続き(Tax Free)のご案内や色のご相談などお気軽に声をかけてください。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeStoreModal()" class="px-6 py-2.5 bg-gray-900 text-white text-xs font-medium rounded-xl hover:bg-gray-800 transition">
+                    閉じる (Close)
+                </button>
+            </div>
         </div>
-      </div>
+    </div>
 
-      <!-- 제품 카드 3 -->
-      <div class="product-card">
-        <div class="product-image-wrapper">
-          <img src="images/product3.jpg" alt="Nubi Pouch" onerror="this.src='https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'">
+    <footer class="bg-brand-900 text-brand-100 border-t border-brand-800 py-10 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h4 class="text-lg font-bold serif-title text-white">BUSAN NUBI & BEAUTY</h4>
+                <p class="text-xs text-brand-200 mt-2 leading-relaxed">
+                    釜山国際市場で丁寧に作られたハンドメイドヌビバッグと、厳選されたコスメをお届けします。
+                </p>
+            </div>
+            <div>
+                <h5 class="text-xs font-bold text-brand-500 uppercase tracking-widest mb-3">店舗情報</h5>
+                <p class="text-xs text-brand-200">釜山広域市 中区 新昌洞4街 国際市場</p>
+                <p class="text-xs text-brand-200 mt-1">営業時間: 10:00 - 19:00</p>
+            </div>
+            <div>
+                <h5 class="text-xs font-bold text-brand-500 uppercase tracking-widest mb-3">サービス</h5>
+                <ul class="text-xs text-brand-200 space-y-1">
+                    <li>・ Tax Free (免税)</li>
+                    <li>・ Handmade in Busan</li>
+                    <li>・ 日本語対応</li>
+                </ul>
+            </div>
         </div>
-        <div class="product-info">
-          <h3>Nubi Mini Pouch</h3>
-          <p class="product-desc">화장품 및 소품을 깔끔하게 보관할 수 있는 파우치입니다.</p>
-          <span class="product-tag">Handmade in Busan</span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-brand-800/60 text-center text-[11px] text-brand-500">
+            &copy; BUSAN NUBI & COSMETICS. All rights reserved.
         </div>
-      </div>
-    </div>
-  </section>
+    </footer>
 
-  <!-- 5. 가게 위치 & LINE 상담 (Access & Contact) -->
-  <section id="access" class="section access-section">
-    <div class="section-header">
-      <span class="sub-title">VISIT US & CONTACT</span>
-      <h2>STORE LOCATION</h2>
-    </div>
+    <script>
+        // DATA STRUCTURE FOR CATEGORIES & DETAILED PRODUCTS
+        const categories = [
+            {
+                id: 'cat-s',
+                title: 'Sサイズのヌビバック',
+                subTitle: 'Nubi Tote Bag (S)',
+                desc: '軽くてふんわりとした肌触りの、デイリーに活躍するヌビトートバッグです。',
+                tag: 'Handmade in Busan',
+                mainImg: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800',
+                items: [
+                    {
+                        id: 's-1',
+                        title: 'Sサイズ ヌビトート (アイボリー)',
+                        color: 'アイボリー',
+                        priceJpy: 3200,
+                        priceKrw: 28000,
+                        desc: 'ふんわり優しい肌触りのアイボリーカラー。ちょっとしたお出かけやランチバッグに最適です。',
+                        size: 'W28cm x H20cm x D10cm',
+                        img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
+                    },
+                    {
+                        id: 's-2',
+                        title: 'Sサイズ ヌビトート (サクラピンク)',
+                        color: 'ピンク',
+                        priceJpy: 3200,
+                        priceKrw: 28000,
+                        desc: '華やかで可愛らしいサクラピンク。コーデのアクセントになる人気カラーです。',
+                        size: 'W28cm x H20cm x D10cm',
+                        img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
+                    },
+                    {
+                        id: 's-3',
+                        title: 'Sサイズ ヌビトート (ナチュラルベージュ)',
+                        color: 'ベージュ',
+                        priceJpy: 3200,
+                        priceKrw: 28000,
+                        desc: '落ち着きのある優しいベージュ。どんな服装にも合わせやすい万能カラー。',
+                        size: 'W28cm x H20cm x D10cm',
+                        img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'
+                    },
+                    {
+                        id: 's-4',
+                        title: 'Sサイズ ヌビトート (チャコールグレー)',
+                        color: 'チャコール',
+                        priceJpy: 3400,
+                        priceKrw: 30000,
+                        desc: 'シックで汚れが目立ちにくいチャコールカラー。男性にも人気のモダンな色合いです。',
+                        size: 'W28cm x H20cm x D10cm',
+                        img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
+                    }
+                ]
+            },
+            {
+                id: 'cat-m',
+                title: 'Mサイズのヌビバック',
+                subTitle: 'Nubi Shoulder Bag (M)',
+                desc: '優れた収納力とセンスあふれる刺繍デザイン。使い勝手抜群のショルダーバッグ。',
+                tag: 'Handmade in Busan',
+                mainImg: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800',
+                items: [
+                    {
+                        id: 'm-1',
+                        title: 'Mサイズ ヌビショルダー (モカベージュ)',
+                        color: 'ベージュ',
+                        priceJpy: 4500,
+                        priceKrw: 39000,
+                        desc: 'A4サイズやペットボトルも楽々入るミディアムサイズ。肩掛けがしやすく通勤や散策に便利。',
+                        size: 'W36cm x H26cm x D12cm',
+                        img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'
+                    },
+                    {
+                        id: 'm-2',
+                        title: 'Mサイズ ヌビショルダー (アイボリー刺繍)',
+                        color: 'アイボリー',
+                        priceJpy: 4800,
+                        priceKrw: 42000,
+                        desc: '上品なお花のワンポイント刺繍が入った人気のモデル。ワンランク上の上品さ。',
+                        size: 'W36cm x H26cm x D12cm',
+                        img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
+                    },
+                    {
+                        id: 'm-3',
+                        title: 'Mサイズ ヌビショルダー (ダスティピンク)',
+                        color: 'ピンク',
+                        priceJpy: 4500,
+                        priceKrw: 39000,
+                        desc: 'くすみ系の落ち着いたピンク。大人可愛いスタイリングにぴったりです。',
+                        size: 'W36cm x H26cm x D12cm',
+                        img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
+                    }
+                ]
+            },
+            {
+                id: 'cat-l',
+                title: 'Lサイズのヌビバック',
+                subTitle: 'Nubi Big Tote Bag (L)',
+                desc: '旅行や日常使いにも大活躍。コスメから小物までたっぷり収まる、安心感のあるビッグサイズヌビバッグ。',
+                tag: 'Handmade in Busan',
+                mainImg: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800',
+                items: [
+                    {
+                        id: 'l-1',
+                        title: 'Lサイズ ヌビビッグトート (チャコール)',
+                        color: 'チャコール',
+                        priceJpy: 5800,
+                        priceKrw: 52000,
+                        desc: '1泊2日の旅行やマザーズバッグとしても大人気の大容量サイズ。洗濯機で丸洗い可能です。',
+                        size: 'W45cm x H32cm x D15cm',
+                        img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
+                    },
+                    {
+                        id: 'l-2',
+                        title: 'Lサイズ ヌビビッグトート (ナチュラルアイボリー)',
+                        color: 'アイボリー',
+                        priceJpy: 5800,
+                        priceKrw: 52000,
+                        desc: '清潔感のあるアイボリーの大容量トート。軽いため荷物が多くなっても疲れにくいのが魅力。',
+                        size: 'W45cm x H32cm x D15cm',
+                        img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
+                    }
+                ]
+            },
+            {
+                id: 'cat-pouch',
+                title: 'ヌビ生地のポーチ & コスメ',
+                subTitle: 'Nubi Pouch & Beauty Items',
+                desc: 'ふんわり優しいヌビ素材。コスメや小物を綺麗にまとめて持ち運べるポーチ＆人気韓国コスメ。',
+                tag: 'Handmade in Busan',
+                mainImg: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800',
+                items: [
+                    {
+                        id: 'p-1',
+                        title: 'ヌビ マルチポーチ (ストライプ刺繍)',
+                        color: 'アイボリー',
+                        priceJpy: 1600,
+                        priceKrw: 14000,
+                        desc: 'リップやコンパクト、イヤホンなどの小物を収納するのにピッタリなふんわりポーチ。',
+                        size: 'W18cm x H12cm x D6cm',
+                        img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
+                    },
+                    {
+                        id: 'p-2',
+                        title: 'ヌビ バニティ型 コスメポーチ',
+                        color: 'ピンク',
+                        priceJpy: 2400,
+                        priceKrw: 21000,
+                        desc: 'ガバッと大きく開くので出し入れがラクラク。旅行用の化粧品ポーチとして大人気です。',
+                        size: 'W20cm x H14cm x D10cm',
+                        img: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800'
+                    },
+                    {
+                        id: 'p-3',
+                        title: '釜山限定 スキンケア コスメセット',
+                        color: 'ベージュ',
+                        priceJpy: 3500,
+                        priceKrw: 30000,
+                        desc: '当店限定！保湿力の高い韓国人気ハンドクリームとシートマスクの特別ギフトセット。',
+                        size: 'Gift Box Package',
+                        img: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800'
+                    }
+                ]
+            }
+        ];
 
-    <p class="access-desc">부산 국제시장에 위치한 오프라인 매장 안내입니다. 방문 시 직접 제품을 확인하실 수 있습니다.</p>
+        let activeCategory = null;
+        let activeColorFilter = 'all';
 
-    <!-- 구글 지도 -->
-    <div class="map-wrapper">
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3264.444761003893!2d129.0268!3d35.1011!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3568e91f1b2b2b2b%3A0x0!2z67aA7IKwIOq1reqcjuC9nOyaqOyEnA!5e0!3m2!1sko!2skr!4v1600000000000!5m2!1sko!2skr" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-    </div>
+        window.onload = function() {
+            renderCategories();
+        };
 
-    <!-- LINE 상담 CTA 카드 -->
-    <div class="line-card">
-      <div class="line-icon-badge">LINE</div>
-      <h3>LINE Official Support</h3>
-      <p>製品のご注文・配送に関するお問い合わせは公式LINEより受け付けております。</p>
-      <a href="https://line.me/R/ti/p/@YOUR_LINE_ID" target="_blank" rel="noopener noreferrer" class="line-button">
-        LINEで問い合わせる (公式LINE)
-      </a>
-    </div>
-  </section>
+        // Render Homepage Category Cards (Matching screenshot styling exactly)
+        function renderCategories() {
+            const grid = document.getElementById('category-grid');
+            grid.innerHTML = '';
 
-  <!-- 6. 푸터 -->
-  <footer class="footer">
-    <div class="footer-container">
-      <p class="footer-logo">HANILBUBU</p>
-      <p class="copyright">&copy; 2026 HANILBUBU / NUBI BAG. All rights reserved.</p>
-    </div>
-  </footer>
+            categories.forEach(cat => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm card-hover cursor-pointer flex flex-col justify-between';
+                card.onclick = () => selectCategory(cat.id);
 
+                card.innerHTML = `
+                    <div>
+                        <div class="h-60 sm:h-64 overflow-hidden bg-gray-100 relative">
+                            <img src="${cat.mainImg}" alt="${cat.title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-base sm:text-lg font-bold text-gray-900">${cat.title}</h3>
+                            <p class="text-xs text-gray-500 mt-2 leading-relaxed line-clamp-3">${cat.desc}</p>
+                        </div>
+                    </div>
+                    <div class="px-5 pb-5 pt-2 border-t border-gray-100 flex items-center justify-between">
+                        <span class="text-[11px] text-gray-400 font-medium">${cat.tag}</span>
+                        <span class="text-xs text-brand-600 font-bold flex items-center">
+                            詳細を見る <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
+                        </span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Navigate to Specific Category Detail View
+        function selectCategory(catId) {
+            activeCategory = categories.find(c => c.id === catId);
+            if (!activeCategory) return;
+
+            activeColorFilter = 'all';
+            document.getElementById('breadcrumb-category').innerText = activeCategory.title;
+            document.getElementById('category-detail-title').innerText = activeCategory.title;
+            document.getElementById('category-detail-desc').innerText = activeCategory.desc;
+
+            // Reset Filter Buttons
+            document.querySelectorAll('.color-filter-btn').forEach(btn => {
+                if(btn.dataset.color === 'all') {
+                    btn.className = 'color-filter-btn px-3 py-1.5 rounded-full bg-brand-800 text-white font-medium';
+                } else {
+                    btn.className = 'color-filter-btn px-3 py-1.5 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50';
+                }
+            });
+
+            renderCategoryItems();
+            showView('category-detail');
+        }
+
+        // Render List of Products inside selected Category
+        function renderCategoryItems() {
+            if (!activeCategory) return;
+
+            const grid = document.getElementById('product-items-grid');
+            grid.innerHTML = '';
+
+            const filteredItems = activeColorFilter === 'all' 
+                ? activeCategory.items 
+                : activeCategory.items.filter(item => item.color === activeColorFilter);
+
+            document.getElementById('item-count').innerText = filteredItems.length;
+
+            if (filteredItems.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-400 text-xs">
+                        該当するカラーの商品がありません。
+                    </div>
+                `;
+                return;
+            }
+
+            filteredItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm card-hover cursor-pointer flex flex-col justify-between';
+                card.onclick = () => openProductModal(item);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="h-48 overflow-hidden bg-gray-100 relative">
+                            <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover">
+                            <span class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded-md text-gray-700 shadow-sm">
+                                ${item.color}
+                            </span>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-sm font-bold text-gray-900">${item.title}</h4>
+                            <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.desc}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0">
+                        <div class="flex items-baseline justify-between mt-2 pt-3 border-t border-gray-100">
+                            <div>
+                                <span class="text-base font-bold text-brand-800">￥${item.priceJpy.toLocaleString()}</span>
+                                <span class="text-[10px] text-gray-400 block">(${item.priceKrw.toLocaleString()} KRW)</span>
+                            </div>
+                            <span class="text-[11px] bg-brand-50 text-brand-800 px-2 py-1 rounded font-medium">詳細</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Color Filter Handler
+        function filterColor(color) {
+            activeColorFilter = color;
+            document.querySelectorAll('.color-filter-btn').forEach(btn => {
+                if (btn.dataset.color === color) {
+                    btn.className = 'color-filter-btn px-3 py-1.5 rounded-full bg-brand-800 text-white font-medium';
+                } else {
+                    btn.className = 'color-filter-btn px-3 py-1.5 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50';
+                }
+            });
+            renderCategoryItems();
+        }
+
+        // Show View Switcher
+        function showView(viewName) {
+            const homeView = document.getElementById('view-home');
+            const heroBanner = document.getElementById('hero-banner');
+            const categoryDetailView = document.getElementById('view-category-detail');
+
+            if (viewName === 'home') {
+                homeView.classList.remove('hidden');
+                heroBanner.classList.remove('hidden');
+                categoryDetailView.classList.add('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (viewName === 'category-detail') {
+                homeView.classList.add('hidden');
+                heroBanner.classList.add('hidden');
+                categoryDetailView.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function scrollToProducts() {
+            showView('home');
+            document.getElementById('category-grid').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Modal Logic
+        function openProductModal(item) {
+            document.getElementById('modal-product-image').src = item.img;
+            document.getElementById('modal-product-category').innerText = activeCategory ? activeCategory.title : 'NUBI BAG';
+            document.getElementById('modal-product-title').innerText = item.title;
+            document.getElementById('modal-product-price-jpy').innerText = `￥${item.priceJpy.toLocaleString()}`;
+            document.getElementById('modal-product-price-krw').innerText = `(${item.priceKrw.toLocaleString()} KRW)`;
+            document.getElementById('modal-product-desc').innerText = item.desc;
+            document.getElementById('modal-product-size').innerText = item.size;
+
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        function openStoreModal() {
+            document.getElementById('store-modal').classList.remove('hidden');
+        }
+
+        function closeStoreModal() {
+            document.getElementById('store-modal').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
