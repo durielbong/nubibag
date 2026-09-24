@@ -172,7 +172,7 @@ body {
         <div id="hero-banner-container" class="relative bg-brand-50 border-b border-brand-100 overflow-hidden py-8 sm:py-12 group">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div id="banner-slider" class="relative rounded-2xl overflow-hidden shadow-lg bg-white min-h-[220px] sm:min-h-[300px]">
-                    <!-- Dynamic Banner Items will be rendered here -->
+                    <!-- Dynamic Banner Items -->
                 </div>
             </div>
             <!-- Slider Navigation Buttons -->
@@ -502,8 +502,13 @@ body {
             <!-- TAB 4: BANNER & EVENT MANAGEMENT -->
             <div id="admin-tab-banner" class="hidden">
                 <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6">
-                    <h4 class="text-xs font-bold text-brand-800 uppercase tracking-wider mb-3"><i class="fa-solid fa-plus-circle mr-1"></i> 新しいメインバナー・企画展を追加</h4>
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 id="banner-form-heading" class="text-xs font-bold text-brand-800 uppercase tracking-wider"><i class="fa-solid fa-plus-circle mr-1"></i> 新しいメインバナー・企画展を追加</h4>
+                        <button type="button" onclick="resetBannerForm()" class="text-[11px] text-gray-500 hover:text-brand-800 underline">新規作成に切り替え</button>
+                    </div>
+
                     <form id="admin-banner-form" onsubmit="handleBannerFormSubmit(event)" class="space-y-3">
+                        <input type="hidden" id="banner-editing-id" value="">
                         <input type="hidden" id="banner-add-img" value="">
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -537,16 +542,24 @@ body {
                             <textarea id="banner-add-desc" rows="2" placeholder="企画展の詳しい説明を入力してください"></textarea>
                         </div>
 
-                        <!-- Product selection list for promotion -->
+                        <!-- 1. CATEGORY FILTER DROPDOWN -->
                         <div class="admin-field">
-                            <label>企画展に連動・露出する商品を選択</label>
+                            <label for="banner-cat-filter">1. カテゴリーを選択して商品を絞り込み</label>
+                            <select id="banner-cat-filter" onchange="filterBannerProductsByCategory()" class="bg-white border border-gray-200 rounded-xl p-2 text-xs w-full">
+                                <option value="all">すべてのカテゴリー</option>
+                            </select>
+                        </div>
+
+                        <!-- 2. PRODUCT CHECKBOX LIST -->
+                        <div class="admin-field">
+                            <label>2. 企画展に連動・露出する商品を選択 (複数選択可)</label>
                             <div id="banner-product-checkboxes" class="max-h-40 overflow-y-auto border border-gray-200 rounded-xl p-3 bg-white space-y-2">
                                 <!-- Dynamic JS rendering -->
                             </div>
                         </div>
 
-                        <div class="flex justify-end pt-1">
-                            <button type="submit" class="px-4 py-2 bg-brand-800 hover:bg-brand-900 text-white rounded-lg text-xs font-bold transition shadow-sm">
+                        <div class="flex justify-end pt-1 gap-2">
+                            <button type="submit" id="banner-submit-btn" class="px-4 py-2 bg-brand-800 hover:bg-brand-900 text-white rounded-lg text-xs font-bold transition shadow-sm">
                                 バナーを追加する
                             </button>
                         </div>
@@ -572,7 +585,7 @@ body {
     </footer>
 
     <script>
-// DEFAULT DEFAULT BANNERS
+// DEFAULT BANNERS
 const DEFAULT_BANNERS = [
     {
         id: 'default-banner-1',
@@ -616,6 +629,7 @@ let categories = [];
 let banners = [];
 let currentBannerIndex = 0;
 let bannerTimer = null;
+let currentlySelectedProductIds = []; // Temporary state for active edit/selection
 
 function buildCategories() {
     const customCategories = loadCustomCategories();
@@ -695,7 +709,7 @@ function startBannerTimer() {
     clearInterval(bannerTimer);
     bannerTimer = setInterval(() => {
         nextBanner();
-    }, 5000); // 롤링 시간: 5초
+    }, 5000);
 }
 
 function nextBanner() {
@@ -773,7 +787,7 @@ function renderCategories() {
     if (categories.length === 0) {
         grid.innerHTML = `
             <div class="col-span-full text-center py-12 text-gray-400 text-xs">
-                現在登録されているカテゴリーはありません。「관리 모드」から追加してください。
+                現在登録されているカテゴリーはありません。「管理モード」から追加してください。
             </div>
         `;
         return;
@@ -1114,6 +1128,7 @@ function switchAdminTab(tabName) {
         bannerTab.classList.remove('hidden');
         bannerBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition whitespace-nowrap';
         renderAdminBannersList();
+        populateBannerCategoryFilter();
         populateBannerProductCheckboxes();
     }
 }
@@ -1279,10 +1294,22 @@ function handleAdminFormSubmit(event) {
     closeAdminModal();
 }
 
-// BANNER FORM SUBMIT
+// BANNER FORM SUBMIT & EDITING
+function resetBannerForm() {
+    document.getElementById('admin-banner-form').reset();
+    document.getElementById('banner-editing-id').value = '';
+    document.getElementById('banner-add-img').value = '';
+    clearPreviewImage('banner');
+    document.getElementById('banner-form-heading').innerText = '新しいメインバナー・企画展を追加';
+    document.getElementById('banner-submit-btn').innerText = 'バナーを追加する';
+    currentlySelectedProductIds = [];
+    populateBannerProductCheckboxes();
+}
+
 function handleBannerFormSubmit(event) {
     event.preventDefault();
 
+    const editingId = document.getElementById('banner-editing-id').value;
     const title = document.getElementById('banner-add-title').value.trim();
     const subtitle = document.getElementById('banner-add-subtitle').value.trim();
     const img = document.getElementById('banner-add-img').value;
@@ -1293,47 +1320,125 @@ function handleBannerFormSubmit(event) {
         return;
     }
 
-    const checkboxes = document.querySelectorAll('.banner-prod-checkbox:checked');
-    const selectedProductIds = Array.from(checkboxes).map(cb => cb.value);
-
-    const newBanner = {
-        id: 'banner-custom-' + Date.now().toString(36),
-        title: title,
-        subTitle: subtitle || 'Gukje Market',
-        desc: desc || title,
-        img: img,
-        productIds: selectedProductIds
-    };
+    // Collect checked items + retain existing selection state
+    const currentCheckboxes = document.querySelectorAll('.banner-prod-checkbox');
+    currentCheckboxes.forEach(cb => {
+        if (cb.checked) {
+            if (!currentlySelectedProductIds.includes(cb.value)) {
+                currentlySelectedProductIds.push(cb.value);
+            }
+        } else {
+            currentlySelectedProductIds = currentlySelectedProductIds.filter(id => id !== cb.value);
+        }
+    });
 
     let customBanners = loadCustomBanners();
-    customBanners.push(newBanner);
-    saveCustomBanners(customBanners);
 
+    if (editingId) {
+        const index = customBanners.findIndex(b => b.id === editingId);
+        if (index !== -1) {
+            customBanners[index] = {
+                ...customBanners[index],
+                title: title,
+                subTitle: subtitle || 'Gukje Market',
+                desc: desc || title,
+                img: img,
+                productIds: currentlySelectedProductIds
+            };
+            showToast('バナー情報を更新しました ✓');
+        }
+    } else {
+        const newBanner = {
+            id: 'banner-custom-' + Date.now().toString(36),
+            title: title,
+            subTitle: subtitle || 'Gukje Market',
+            desc: desc || title,
+            img: img,
+            productIds: currentlySelectedProductIds
+        };
+        customBanners.push(newBanner);
+        showToast('新しいメインバナーを追加しました ✓');
+    }
+
+    saveCustomBanners(customBanners);
     banners = customBanners;
     renderBanners();
     renderAdminBannersList();
+    resetBannerForm();
+}
 
-    document.getElementById('admin-banner-form').reset();
-    clearPreviewImage('banner');
-    showToast('新しいメインバナーを追加しました ✓');
+function startEditBanner(bannerId) {
+    const customBanners = loadCustomBanners();
+    const banner = customBanners.find(b => b.id === bannerId);
+    if (!banner) return;
+
+    document.getElementById('banner-editing-id').value = banner.id;
+    document.getElementById('banner-add-title').value = banner.title;
+    document.getElementById('banner-add-subtitle').value = banner.subTitle || '';
+    document.getElementById('banner-add-desc').value = banner.desc || '';
+    
+    setPreviewImage(banner.img, 'banner');
+
+    document.getElementById('banner-form-heading').innerText = 'メインバナー・企画展を編集';
+    document.getElementById('banner-submit-btn').innerText = 'バナーを更新する';
+
+    currentlySelectedProductIds = banner.productIds ? [...banner.productIds] : [];
+    populateBannerCategoryFilter();
+    populateBannerProductCheckboxes();
+}
+
+// CATEGORY DROPDOWN FOR BANNER PROMOTIONS
+function populateBannerCategoryFilter() {
+    const select = document.getElementById('banner-cat-filter');
+    if (!select) return;
+    select.innerHTML = '<option value="all">すべてのカテゴリー</option>';
+
+    categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.title;
+        select.appendChild(opt);
+    });
+}
+
+function filterBannerProductsByCategory() {
+    // Keep track of currently checked states before switching category view
+    const checkboxes = document.querySelectorAll('.banner-prod-checkbox');
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            if (!currentlySelectedProductIds.includes(cb.value)) {
+                currentlySelectedProductIds.push(cb.value);
+            }
+        } else {
+            currentlySelectedProductIds = currentlySelectedProductIds.filter(id => id !== cb.value);
+        }
+    });
+
+    populateBannerProductCheckboxes();
 }
 
 function populateBannerProductCheckboxes() {
     const container = document.getElementById('banner-product-checkboxes');
+    const selectedCatId = document.getElementById('banner-cat-filter').value;
     container.innerHTML = '';
 
-    const allProducts = loadCustomProducts();
+    let allProducts = loadCustomProducts();
+
+    if (selectedCatId !== 'all') {
+        allProducts = allProducts.filter(p => p.categoryId === selectedCatId);
+    }
 
     if (allProducts.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-400">登録されている商品がありません。先に商品を登録してください。</p>`;
+        container.innerHTML = `<p class="text-xs text-gray-400">該当するカテゴリーに商品がありません。</p>`;
         return;
     }
 
     allProducts.forEach(prod => {
+        const isChecked = currentlySelectedProductIds.includes(prod.id);
         const item = document.createElement('label');
         item.className = 'flex items-center space-x-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded-lg';
         item.innerHTML = `
-            <input type="checkbox" value="${prod.id}" class="banner-prod-checkbox rounded text-brand-800 focus:ring-brand-500">
+            <input type="checkbox" value="${prod.id}" ${isChecked ? 'checked' : ''} class="banner-prod-checkbox rounded text-brand-800 focus:ring-brand-500">
             <img src="${prod.img}" class="w-6 h-6 object-cover rounded" alt="">
             <span class="truncate">${prod.title} (${prod.color})</span>
         `;
@@ -1434,6 +1539,9 @@ function renderAdminBannersList() {
                 </div>
             </div>
             <div class="flex items-center space-x-1 flex-shrink-0">
+                <button onclick="startEditBanner('${b.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition">
+                    <i class="fa-solid fa-pen"></i> 編集
+                </button>
                 <button onclick="deleteBanner('${b.id}')" class="px-2.5 py-1 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-lg transition">
                     <i class="fa-solid fa-trash"></i> 削除
                 </button>
