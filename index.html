@@ -613,73 +613,7 @@ body {
     </footer>
 
     <script>
-// DEFAULT DATA FOR INITIAL VISITS
-const DEFAULT_CATEGORIES = [
-    {
-        id: 'cat-s-size',
-        title: 'Sサイズ ヌビバッグ',
-        subTitle: 'Nubi S-Size Bag',
-        desc: 'ちょっとしたお出かけやサブバッグに最適なミニサイズ。軽やかで日常使いにぴったりです。',
-        tag: '日韓夫婦 • Gukje Market',
-        mainImg: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
-    },
-    {
-        id: 'cat-m-size',
-        title: 'Mサイズ ヌビバッグ',
-        subTitle: 'Nubi M-Size Bag',
-        desc: 'A4サイズやポーチがしっかり収まる万能トート。通勤・通学・お買い物に大活躍します。',
-        tag: '日韓夫婦 • Gukje Market',
-        mainImg: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'
-    },
-    {
-        id: 'cat-l-size',
-        title: 'Lサイズ ヌビバッグ',
-        subTitle: 'Nubi L-Size Bag',
-        desc: 'マザーズバッグや一泊旅行にも使える大容量サイズ。軽量で肩への負担も軽減されます。',
-        tag: '日韓夫婦 • Gukje Market',
-        mainImg: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
-    },
-    {
-        id: 'cat-cosmetics',
-        title: '韓国コスメ Selection',
-        subTitle: 'Korean Beauty Cosmetics',
-        desc: '釜山・国際市場の実店舗で人気の高保湿スキンケアや注目の韓国コスメラインナップ。',
-        tag: 'Hanil Bubu Cosmetics',
-        mainImg: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800'
-    }
-];
-
-const DEFAULT_PRODUCTS = [
-    {
-        id: 'prod-s-1',
-        categoryId: 'cat-s-size',
-        title: 'Sサイズ ヌビトート (アイボリー)',
-        color: 'アイボリー',
-        size: 'W28cm x H20cm x D10cm',
-        desc: 'やわらかな手触りのコットンキルティング生地を使用したSサイズトート。軽快にお出かけを楽しめます。',
-        img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-        id: 'prod-m-1',
-        categoryId: 'cat-m-size',
-        title: 'Mサイズ ヌビトート (ベージュ)',
-        color: 'ベージュ',
-        size: 'W36cm x H26cm x D12cm',
-        desc: 'デイリーユースに一番人気のMサイズ。しっかりとした収容力と上品なカラーリングが特徴です。',
-        img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-        id: 'prod-cosme-1',
-        categoryId: 'cat-cosmetics',
-        title: 'アロセル (AROCELL) スキンケアセット',
-        color: 'アイボリー',
-        size: 'Standard Box',
-        desc: 'お肌にうるおいを与えるプレミアムスキンケア。釜山実店舗でも大人気の商品です。',
-        img: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=600'
-    }
-];
-
-// DEFAULT BANNERS
+// DEFAULT BANNERS (User can add/edit/delete from admin panel)
 const DEFAULT_BANNERS = [
     {
         id: 'default-banner-1',
@@ -687,7 +621,7 @@ const DEFAULT_BANNERS = [
         subTitle: '日韓夫婦 • Gukje Market',
         desc: '韓国伝統のキルティング生地「ヌビ（イブル）」を使用したハンドメイドバッグと、厳選された人気韓国コスメを取り扱っております。',
         img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=1200',
-        productIds: ['prod-s-1', 'prod-m-1']
+        productIds: []
     }
 ];
 
@@ -699,18 +633,16 @@ const STORAGE_KEYS = {
 
 function loadCustomCategories() {
     try { 
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || JSON.parse(localStorage.getItem('busanNubi_categories')); 
-        return (stored && stored.length > 0) ? stored : DEFAULT_CATEGORIES;
-    } catch (e) { return DEFAULT_CATEGORIES; }
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || JSON.parse(localStorage.getItem('busanNubi_categories')) || []; 
+    } catch (e) { return []; }
 }
 function saveCustomCategories(list) {
     try { localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list)); } catch (e) {}
 }
 function loadCustomProducts() {
     try { 
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || JSON.parse(localStorage.getItem('busanNubi_products')); 
-        return (stored && stored.length > 0) ? stored : DEFAULT_PRODUCTS;
-    } catch (e) { return DEFAULT_PRODUCTS; }
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || JSON.parse(localStorage.getItem('busanNubi_products')) || []; 
+    } catch (e) { return []; }
 }
 function saveCustomProducts(list) {
     try { localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list)); } catch (e) {}
