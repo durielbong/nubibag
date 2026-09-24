@@ -205,14 +205,14 @@ body {
                     <i class="fa-solid fa-house mr-1"></i> HOME
                 </button>
                 <span>/</span>
-                <span id="breadcrumb-category" class="font-medium text-gray-900">Sサイズ ヌビバッグ</span>
+                <span id="breadcrumb-category" class="font-medium text-gray-900"></span>
             </div>
 
             <div class="bg-brand-50 border border-brand-100 rounded-2xl p-6 sm:p-8 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <span class="text-xs font-semibold text-brand-600 tracking-wider uppercase">CATEGORY LINEUP</span>
-                    <h2 id="category-detail-title" class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">Sサイズのヌビバッグ</h2>
-                    <p id="category-detail-desc" class="text-sm text-gray-600 mt-2">軽くてふんわりとした肌触りの、デイリーに活躍するヌビトートバッグです。</p>
+                    <h2 id="category-detail-title" class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1"></h2>
+                    <p id="category-detail-desc" class="text-sm text-gray-600 mt-2"></p>
                 </div>
                 <button onclick="showView('home')" class="self-start md:self-center px-4 py-2 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm flex items-center">
                     <i class="fa-solid fa-arrow-left mr-2"></i> カテゴリー一覧へ戻る
@@ -251,7 +251,7 @@ body {
                 <div class="p-6 sm:p-8 flex flex-col justify-between">
                     <div>
                         <span id="modal-product-category" class="text-xs font-semibold text-brand-600 tracking-wider uppercase">CATEGORIES</span>
-                        <h3 id="modal-product-title" class="text-xl font-bold text-gray-900 mt-1">Sサイズ ヌビトート</h3>
+                        <h3 id="modal-product-title" class="text-xl font-bold text-gray-900 mt-1"></h3>
 
                         <div class="mt-4 border-t border-b border-gray-100 py-3 my-3">
                             <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">商品説明 (Description)</h4>
@@ -267,7 +267,6 @@ body {
                                 <span class="text-gray-400">素材 (Material):</span>
                                 <span class="font-medium text-gray-800">綿100% (コットンキルティング)</span>
                             </div>
-                            <!-- 생산지(Origin) 표시 영역 삭제 처리 완료 -->
                         </div>
                     </div>
 
@@ -420,7 +419,6 @@ body {
             <div id="admin-tab-list" class="hidden">
                 <div class="mb-4 flex items-center justify-between">
                     <h3 class="text-lg font-bold text-gray-900">登録済み商品一覧</h3>
-                    <span class="text-xs text-gray-400">※基本商品は編集できません</span>
                 </div>
                 <div id="admin-products-list-container" class="max-h-80 overflow-y-auto space-y-3 pr-1"></div>
             </div>
@@ -475,7 +473,6 @@ body {
                 <!-- Category List -->
                 <div class="mb-2 flex items-center justify-between">
                     <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">登録済みカテゴリー一覧</h4>
-                    <span class="text-[11px] text-gray-400">※基本カテゴリーは削除できません</span>
                 </div>
                 <div id="admin-categories-list-container" class="max-h-60 overflow-y-auto space-y-3 pr-1"></div>
             </div>
@@ -493,53 +490,8 @@ body {
     </footer>
 
     <script>
-// DATA LAYER
-const BASE_CATEGORIES = [
-    {
-        id: 'cat-s',
-        title: 'Sサイズのヌビバック',
-        subTitle: 'Nubi Tote Bag (S)',
-        desc: '軽くてふんわりとした肌触りの、デイリーに活躍するヌビトートバッグです。',
-        tag: '日韓夫婦',
-        mainImg: 'https://github.com/durielbong/nubibag/blob/main/images/S_1/S_Size_1.jpeg',
-        items: [
-            {
-                id: 's-1',
-                title: 'Sサイズ ヌビトート (アイボリー)',
-                color: 'アイボリー',
-                desc: 'ふんわり優しい肌触りのアイボリーカラー。ちょっとしたお出かけやランチバッグに最適です。',
-                size: 'W28cm x H20cm x D10cm',
-                img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
-            },
-            {
-                id: 's-2',
-                title: 'Sサイズ ヌビトート (サクラピンク)',
-                color: 'ピンク',
-                desc: '華やかで可愛らしいサクラピンク。コーデのアクセントになる人気カラーです。',
-                size: 'W28cm x H20cm x D10cm',
-                img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
-            }
-        ]
-    },
-    {
-        id: 'cat-m',
-        title: 'Mサイズのヌビバック',
-        subTitle: 'Nubi Shoulder Bag (M)',
-        desc: '優れた収納力とセンスあふれる刺繍デザイン。使い勝手抜群のショルダーバッグ。',
-        tag: '日韓夫婦',
-        mainImg: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800',
-        items: [
-            {
-                id: 'm-1',
-                title: 'Mサイズ ヌビショルダー (モカベージュ)',
-                color: 'ベージュ',
-                desc: 'A4サイズやペットボトルも楽々入るミディアムサイズ。肩掛けがしやすく通勤や散策に便利。',
-                size: 'W36cm x H26cm x D12cm',
-                img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'
-            }
-        ]
-    }
-];
+// DATA LAYER (기본 카테고리 삭제 처리완료)
+const BASE_CATEGORIES = [];
 
 const STORAGE_KEYS = {
     categories: 'busanNubi_customCategories',
@@ -605,6 +557,15 @@ function renderCategories() {
     const grid = document.getElementById('category-grid');
     grid.innerHTML = '';
 
+    if (categories.length === 0) {
+        grid.innerHTML = `
+            <div class="col-span-full text-center py-12 text-gray-400 text-xs">
+                現在登録されているカテゴリーはありません。「商品・カテゴリ管理」から追加してください。
+            </div>
+        `;
+        return;
+    }
+
     categories.forEach(cat => {
         const card = document.createElement('div');
         card.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm card-hover cursor-pointer flex flex-col justify-between';
@@ -655,6 +616,15 @@ function renderCategoryItems() {
         : activeCategory.items.filter(item => item.color === activeColorFilter);
 
     document.getElementById('item-count').innerText = filteredItems.length;
+
+    if (filteredItems.length === 0) {
+        grid.innerHTML = `
+            <div class="col-span-full text-center py-12 text-gray-400 text-xs">
+                該当する商品がありません。
+            </div>
+        `;
+        return;
+    }
 
     filteredItems.forEach(item => {
         const card = document.createElement('div');
