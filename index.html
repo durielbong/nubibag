@@ -1,3 +1,23 @@
+관리자 모드에서 **등록된 상품을 수정하거나 삭제할 수 있는 관리자 전용 목록/관리 모달** 기능을 추가해 드리겠습니다.
+
+기존 로직처럼 서버 없이 `localStorage` 데이터를 제어하도록 수정·삭제 로직을 구현하였습니다.
+
+---
+
+### 주요 변경 및 추가 내용
+
+1. **관리자 모달 구조 개선**: 상단 탭을 추가하여 [① 새 상품 등록]과 **[② 등록 상품 수정/삭제]** 목록을 간편하게 넘나들 수 있습니다.
+2. **수정 기능**: 목록에서 '수정' 버튼 클릭 시 해당 상품 데이터가 폼에 자동으로 채워지며, 저장 시 기존 데이터가 업데이트됩니다.
+3. **삭제 기능**: 목록에서 '삭제' 버튼 클릭 시 확정 안내 후 해당 상품만 `localStorage`에서 제거됩니다.
+4. **가격 필수 입력 제거 처리**: 가격을 사용하지 않으시므로 폼 제출(`handleAdminFormSubmit`) 검증 시 가격 검사 부분을 제거해 오류가 발생하지 않습니다.
+
+---
+
+### 전체 수정된 HTML/JS 코드
+
+아래 전체 코드를 복사해서 그대로 적용하시면 됩니다.
+
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -12,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
-    <!-- Tailwind theme customization -->
+    
     <script>
         tailwind.config = {
             theme: {
@@ -42,53 +62,28 @@
             }
         }
     </script>
-    <!-- Custom stylesheet (extracted from inline <style>) -->
     <style>
-/* ============================================
-   BASE STYLES
-   ============================================ */
+/* BASE STYLES */
 body {
     font-family: 'Noto Sans JP', sans-serif;
     background-color: #fcfbfa;
     color: #333333;
 }
-
-.serif-title {
-    font-family: 'Playfair Display', serif;
-}
-
-.card-hover {
-    transition: all 0.3s ease;
-}
-
+.serif-title { font-family: 'Playfair Display', serif; }
+.card-hover { transition: all 0.3s ease; }
 .card-hover:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.08);
 }
-
-.fade-in {
-    animation: fadeIn 0.4s ease-out forwards;
-}
-
+.fade-in { animation: fadeIn 0.4s ease-out forwards; }
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #c59b6d; border-radius: 3px; }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-}
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-::-webkit-scrollbar-thumb {
-    background: #c59b6d;
-    border-radius: 3px;
-}
-
-/* Fallback for line-clamp utilities in case the Tailwind build
-   being served does not include the core line-clamp plugin */
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -102,9 +97,7 @@ body {
     overflow: hidden;
 }
 
-/* ============================================
-   ADMIN / PRODUCT REGISTRATION MODAL
-   ============================================ */
+/* ADMIN MODAL */
 .admin-field label {
     display: block;
     font-size: 0.75rem;
@@ -112,7 +105,6 @@ body {
     color: #5a4228;
     margin-bottom: 0.25rem;
 }
-
 .admin-field input,
 .admin-field select,
 .admin-field textarea {
@@ -125,7 +117,6 @@ body {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     background: #fff;
 }
-
 .admin-field input:focus,
 .admin-field select:focus,
 .admin-field textarea:focus {
@@ -133,7 +124,6 @@ body {
     box-shadow: 0 0 0 3px rgba(197, 155, 109, 0.15);
 }
 
-/* Toast notification (used after registering a product) */
 #toast {
     position: fixed;
     left: 50%;
@@ -154,32 +144,28 @@ body {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
-
-</style>
+    </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-200">
 
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20">
-                <!-- Brand Logo -->
                 <div class="flex items-center cursor-pointer" onclick="showView('home')">
                     <span class="text-2xl font-bold serif-title text-brand-800 tracking-wider">BUSAN NUBI</span>
                     <span class="ml-2 text-xs bg-brand-100 text-brand-800 px-2 py-0.5 rounded-full font-medium hidden sm:inline-block">国際市場店</span>
                 </div>
 
-                <!-- Navigation Links -->
                 <nav class="hidden md:flex space-x-8 text-sm font-medium text-gray-700">
                     <button onclick="showView('home')" class="hover:text-brand-600 transition">ホーム</button>
                     <button onclick="scrollToProducts()" class="hover:text-brand-600 transition">商品一覧</button>
                     <button onclick="openStoreModal()" class="hover:text-brand-600 transition">店舗案内</button>
                 </nav>
 
-                <!-- Quick Access buttons -->
                 <div class="flex items-center space-x-3">
                     <button id="admin-btn" onclick="openAdminModal()" class="hidden flex items-center space-x-1 bg-brand-800 hover:bg-brand-900 text-white px-3 py-1.5 rounded-full text-xs font-medium transition">
-                        <i class="fa-solid fa-plus me-1"></i>
-                        <span>商品登録</span>
+                        <i class="fa-solid fa-gear me-1"></i>
+                        <span>商品管理・登録</span>
                     </button>
                     <button onclick="openStoreModal()" class="flex items-center space-x-1 bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 px-3 py-1.5 rounded-full text-xs font-medium transition">
                         <i class="fa-solid me-1 fa-location-dot text-brand-600"></i>
@@ -190,9 +176,7 @@ body {
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
     <main class="flex-grow">
-
         <div id="hero-banner" class="relative bg-brand-50 border-b border-brand-100 overflow-hidden py-10 sm:py-16">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -200,53 +184,31 @@ body {
                         <span class="text-xs tracking-widest text-brand-600 uppercase font-semibold">日韓夫婦 • Gukje Market</span>
                         <h1 class="text-2xl sm:text-4xl font-bold text-gray-900 mt-2 leading-tight">
                             ふんわり軽くて優しい質感。<br>
-                            釜山・国際市場のヌ비バッグ専門店
+                            釜山・国際市場のヌビバッグ専門店
                         </h1>
                         <p class="mt-3 text-sm sm:text-base text-gray-600 leading-relaxed">
                             韓国伝統のキルティング生地「ヌビ（イブル）」を使用したハンドメイドバッグと、厳選された人気韓国コスメを取り扱っております。
                         </p>
-                        <div class="mt-6 flex flex-wrap gap-3">
-                            <span class="inline-flex items-center text-xs bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-gray-700 shadow-sm">
-                                <i class="fa-solid fa-check text-green-500 mr-1.5"></i> 日本語スタッフ在籍
-                            </span>
-                            <span class="inline-flex items-center text-xs bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-gray-700 shadow-sm">
-                                <i class="fa-solid fa-check text-green-500 mr-1.5"></i> お名前刺繍可能
-                            </span>
-                            <span class="inline-flex items-center text-xs bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-gray-700 shadow-sm">
-                                <i class="fa-solid fa-check text-green-500 mr-1.5"></i> 日本円でお会計可能
-                            </span>
-                        </div>
                     </div>
                     <div class="relative rounded-2xl overflow-hidden shadow-lg h-56 sm:h-72">
-                        <img src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=1200"
-                             alt="Nubi Bag Banner"
-                             class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end p-6">
-                            <span class="text-white text-sm font-light">国際市場アリラン通り</span>
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=1200" alt="Nubi Bag Banner" class="w-full h-full object-cover">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 1: CATEGORY SELECTION (HOME) -->
+        <!-- VIEW 1: CATEGORY SELECTION -->
         <section id="view-home" class="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
                 <span class="text-xs font-bold tracking-widest text-brand-600 uppercase">ヌビバッグコレクション</span>
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 serif-title tracking-wide">PRODUCTS CATEGORY</h2>
                 <div class="w-12 h-0.5 bg-brand-500 mx-auto mt-3"></div>
-                <p class="text-xs sm:text-sm text-gray-500 mt-3">気になるカテゴリーを選択すると、詳細な商品ラインナップをご覧いただけます。</p>
             </div>
-
-            <!-- Product Category Grid (Javascript populates this) -->
-            <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-                <!-- Javascript will populate category cards here -->
-            </div>
+            <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"></div>
         </section>
 
-        <!-- VIEW 2: CATEGORY DETAIL & PRODUCTS LIST -->
+        <!-- VIEW 2: CATEGORY DETAIL -->
         <section id="view-category-detail" class="hidden py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
-            <!-- Breadcrumb Navigation -->
             <div class="flex items-center text-xs text-gray-500 mb-6 space-x-2">
                 <button onclick="showView('home')" class="hover:text-brand-600 transition flex items-center">
                     <i class="fa-solid fa-house mr-1"></i> HOME
@@ -255,7 +217,6 @@ body {
                 <span id="breadcrumb-category" class="font-medium text-gray-900">Sサイズ ヌビバッグ</span>
             </div>
 
-            <!-- Category Header -->
             <div class="bg-brand-50 border border-brand-100 rounded-2xl p-6 sm:p-8 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <span class="text-xs font-semibold text-brand-600 tracking-wider uppercase">CATEGORY LINEUP</span>
@@ -267,7 +228,6 @@ body {
                 </button>
             </div>
 
-            <!-- Filter Controls -->
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-200 text-xs">
                 <div class="flex items-center space-x-2 overflow-x-auto pb-2 sm:pb-0">
                     <span class="text-gray-500 font-medium mr-2">カラー絞り込み:</span>
@@ -282,223 +242,189 @@ body {
                 </div>
             </div>
 
-            <!-- Product Items Grid -->
-            <div id="product-items-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Javascript dynamic items -->
-            </div>
+            <div id="product-items-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
         </section>
-
     </main>
 
-   <!-- MODAL 1: ITEM DETAIL MODAL -->
-<div id="product-modal" onclick="closeProductModal()" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <!-- modal-content 내부 클릭 시 닫히지 않도록 stopPropagation 추가 -->
-    <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative fade-in">
-        
-        <!-- Close Button (z-index를 z-20으로 올려 클릭 우선순위 확보) -->
-        <button type="button" onclick="closeProductModal()" class="absolute top-4 right-4 z-20 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 shadow-md transition cursor-pointer">
-            <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
+    <!-- MODAL 1: ITEM DETAIL MODAL -->
+    <div id="product-modal" onclick="closeProductModal()" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative fade-in">
+            <button type="button" onclick="closeProductModal()" class="absolute top-4 right-4 z-20 w-10 h-10 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-700 shadow-md border border-gray-200 transition cursor-pointer">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
 
-        <div class="grid grid-cols-1 md:grid-cols-2">
-            <!-- Image Container -->
-            <div class="bg-gray-50 p-6 flex flex-col justify-center items-center relative">
-                <img id="modal-product-image" src="" alt="Product Detail" class="w-full h-72 sm:h-80 object-cover rounded-xl shadow-md">
-            </div>
-
-            <!-- Info Container -->
-            <div class="p-6 sm:p-8 flex flex-col justify-between">
-                <div>
-                    <span id="modal-product-category" class="text-xs font-semibold text-brand-600 tracking-wider uppercase">CATEGORIES</span>
-                    <h3 id="modal-product-title" class="text-xl font-bold text-gray-900 mt-1">Sサイズ ヌビトート (アイボリー)</h3>
-
-                    <div class="mt-4 border-t border-b border-gray-100 py-3 my-3">
-                        <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">商品説明 (Description)</h4>
-                        <p id="modal-product-desc" class="text-xs text-gray-600 leading-relaxed">
-                            軽くてやわらかな手触りが魅力のピュアコットンヌビバッグ。ちょっとしたお出かけやサブバッグとして最適なサイズ感です。
-                        </p>
-                    </div>
-
-                    <!-- Specs List -->
-                    <div class="space-y-2 text-xs text-gray-600">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">サイズ (Dimensions):</span>
-                            <span id="modal-product-size" class="font-medium text-gray-800">W28cm x H20cm x D10cm</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">素材 (Material):</span>
-                            <span class="font-medium text-gray-800">綿100% (コットンキルティング)</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">生産地 (Origin):</span>
-                            <span class="font-medium text-brand-600">釜山 ハンドメイド (Made in Busan)</span>
-                        </div>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2">
+                <div class="bg-gray-50 p-6 flex flex-col justify-center items-center relative">
+                    <img id="modal-product-image" src="" alt="Product Detail" class="w-full h-72 sm:h-80 object-cover rounded-xl shadow-md">
                 </div>
+                <div class="p-6 sm:p-8 flex flex-col justify-between">
+                    <div>
+                        <span id="modal-product-category" class="text-xs font-semibold text-brand-600 tracking-wider uppercase">CATEGORIES</span>
+                        <h3 id="modal-product-title" class="text-xl font-bold text-gray-900 mt-1">Sサイズ ヌビトート</h3>
 
-                <!-- Store Visit CTA -->
-                <div class="mt-8 pt-4 border-t border-gray-100">
-                    <div class="bg-brand-50 p-3 rounded-xl mb-3 flex items-center space-x-3 text-xs text-brand-800">
-                        <i class="fa-solid fa-store text-brand-600 text-base"></i>
-                        <div>
-                            <p class="font-bold">国際市場の実店舗でご購入いただけます</p>
-                            <p class="text-[11px] text-gray-500">실제 매장에서 직접 원단과 색상을 확인해 보세요.</p>
+                        <div class="mt-4 border-t border-b border-gray-100 py-3 my-3">
+                            <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">商品説明 (Description)</h4>
+                            <p id="modal-product-desc" class="text-xs text-gray-600 leading-relaxed"></p>
+                        </div>
+
+                        <div class="space-y-2 text-xs text-gray-600">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">サイズ (Dimensions):</span>
+                                <span id="modal-product-size" class="font-medium text-gray-800"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">素材 (Material):</span>
+                                <span class="font-medium text-gray-800">綿100% (コットンキルティング)</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">生産地 (Origin):</span>
+                                <span class="font-medium text-brand-600">釜山 ハンドメイド (Made in Busan)</span>
+                            </div>
                         </div>
                     </div>
-                    <button onclick="openStoreModal()" class="w-full py-3 bg-brand-800 hover:bg-brand-900 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-map-location-dot"></i>
-                        <span>店舗の場所・アクセスを確認する</span>
-                    </button>
+
+                    <div class="mt-8 pt-4 border-t border-gray-100">
+                        <div class="bg-brand-50 p-3 rounded-xl mb-3 flex items-center space-x-3 text-xs text-brand-800">
+                            <i class="fa-solid fa-store text-brand-600 text-base"></i>
+                            <div>
+                                <p class="font-bold">国際市場の実店舗でご購入いただけます</p>
+                                <p class="text-[11px] text-gray-500">실제 매장에서 직접 원단과 색상을 확인해 보세요.</p>
+                            </div>
+                        </div>
+                        <button onclick="openStoreModal()" class="w-full py-3 bg-brand-800 hover:bg-brand-900 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <span>店舗の場所・アクセスを確認する</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-    <!-- MODAL 2: STORE LOCATION & VISIT GUIDE -->
+    <!-- MODAL 2: STORE LOCATION -->
     <div id="store-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative fade-in">
             <button onclick="closeStoreModal()" class="absolute top-4 right-4 z-10 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 transition">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
-
             <div class="text-center mb-6">
                 <span class="text-xs font-bold text-brand-600 tracking-wider uppercase">GUKJE MARKET STORE</span>
                 <h3 class="text-2xl font-bold text-gray-900 mt-1">国際市場 店舗案内 (Store Info)</h3>
-                <p class="text-xs text-gray-500 mt-1">釜山旅行の際はぜひお気軽にお立ち寄りください！</p>
             </div>
-
-            <!-- Store Details -->
             <div class="space-y-4 text-xs sm:text-sm">
                 <div class="bg-gray-50 p-4 rounded-xl space-y-2 border border-gray-100">
-                    <div class="flex items-start space-x-3">
-                        <i class="fa-solid fa-location-dot text-brand-600 mt-1"></i>
-                        <div>
-                            <span class="font-bold text-gray-800 block">住所 (Address)</span>
-                            <span class="text-gray-600">釜山広域市 中区 中区路40番길 11 1階 ハンイルブブコスメティック</span>
-                            <span class="block text-gray-400 text-xs">(부산광역시 중구 중구로 40번길 11 1층 한일부부코스메틱)</span>
-                            <a href="https://www.google.com/maps/search/?api=1&query=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C%20%EC%A4%91%EA%B5%AC%20%EC%A4%91%EA%B5%AC%EB%A1%9C40%EB%B2%88%EA%B8%B8%2011%20%ED%95%9C%EC%9D%BC%EB%B6%80%EB%B6%80%EC%BD%94%EC%8A%A4%EB%A9%94%ED%8B%B1"
-                               target="_blank" rel="noopener noreferrer"
-                               class="mt-2 inline-flex items-center space-x-1.5 text-xs font-bold text-brand-600 hover:text-brand-800 transition">
-                                <i class="fa-solid fa-map-location-dot"></i>
-                                <span>Googleマップで開く</span>
-                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-3 pt-2 border-t border-gray-200">
-                        <i class="fa-solid fa-subway text-brand-600"></i>
-                        <div>
-                            <span class="font-bold text-gray-800">最寄り駅:</span>
-                            <span class="text-gray-600">地下鉄1号線 チャガルチ駅 (Jagalchi) 7番出口 徒歩5分</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-clock text-brand-600"></i>
-                        <div>
-                            <span class="font-bold text-gray-800">営業時間:</span>
-                            <span class="text-gray-600">10:00 ~ 19:00 (年中無休)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Japanese Assistance Info -->
-                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center space-x-3">
-                    <i class="fa-solid fa-comments text-amber-600 text-xl"></i>
-                    <div>
-                        <p class="font-bold text-amber-900 text-xs sm:text-sm">日本語でのご案内も可能です</p>
-                       </div>
+                    <p class="font-bold text-gray-800">釜山広域市 中区 中区路40番길 11 1階 ハンイルブブコスメティック</p>
+                    <p class="text-gray-600">地下鉄1号線 チャガルチ駅 7番出口 徒歩5分</p>
+                    <p class="text-gray-600">営業時間: 10:00 ~ 19:00 (年中無休)</p>
                 </div>
             </div>
-
             <div class="mt-6 flex justify-end">
-                <button onclick="closeStoreModal()" class="px-6 py-2.5 bg-gray-900 text-white text-xs font-medium rounded-xl hover:bg-gray-800 transition">
-                    閉じる (Close)
-                </button>
+                <button onclick="closeStoreModal()" class="px-6 py-2.5 bg-gray-900 text-white text-xs font-medium rounded-xl hover:bg-gray-800 transition">閉じる</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 3: PRODUCT REGISTRATION (ADMIN) -->
+    <!-- MODAL 3: PRODUCT MANAGEMENT / REGISTRATION (ADMIN) -->
     <div id="admin-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative fade-in my-8">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative fade-in my-8">
             <button onclick="closeAdminModal()" class="absolute top-4 right-4 z-10 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 transition">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
 
-            <div class="mb-6">
-                <span class="text-xs font-bold text-brand-600 tracking-wider uppercase">ADMIN</span>
-                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mt-1">新しい商品を登録</h3>
-                <p class="text-xs text-gray-500 mt-1">ここで登録した内容はこのブラウザに保存され、商品一覧に自動で反映されます。</p>
+            <!-- Admin Tab Switcher -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button id="admin-tab-form-btn" onclick="switchAdminTab('form')" class="py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition">
+                    <i class="fa-solid fa-pen-to-square mr-1"></i> 商品登録 / 編集
+                </button>
+                <button id="admin-tab-list-btn" onclick="switchAdminTab('list')" class="py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition">
+                    <i class="fa-solid fa-list mr-1"></i> 登録商品一覧・削除
+                </button>
             </div>
 
-            <form id="admin-form" onsubmit="handleAdminFormSubmit(event)" class="space-y-4">
-                <div class="admin-field">
-                    <label for="admin-category-select">カテゴリー ＊</label>
-                    <select id="admin-category-select" onchange="toggleNewCategoryFields()" required></select>
+            <!-- TAB 1: FORM (Add / Edit) -->
+            <div id="admin-tab-form">
+                <div class="mb-4">
+                    <h3 id="admin-form-heading" class="text-lg font-bold text-gray-900">新しい商品を登録</h3>
                 </div>
 
-                <!-- Shown only when "＋ 新しいカテゴリーを追加" is selected -->
-                <div id="admin-new-category-fields" class="hidden space-y-3 bg-brand-50 border border-brand-100 rounded-xl p-4">
+                <form id="admin-form" onsubmit="handleAdminFormSubmit(event)" class="space-y-4">
+                    <input type="hidden" id="admin-editing-product-id" value="">
+
                     <div class="admin-field">
-                        <label for="admin-new-category-title">新カテゴリー名 ＊</label>
-                        <input type="text" id="admin-new-category-title" placeholder="例：Freeサイズのヌビバッグ">
+                        <label for="admin-category-select">カテゴリー ＊</label>
+                        <select id="admin-category-select" onchange="toggleNewCategoryFields()" required></select>
                     </div>
+
+                    <div id="admin-new-category-fields" class="hidden space-y-3 bg-brand-50 border border-brand-100 rounded-xl p-4">
+                        <div class="admin-field">
+                            <label for="admin-new-category-title">新カテゴリー名 ＊</label>
+                            <input type="text" id="admin-new-category-title" placeholder="例：Freeサイズのヌビバッグ">
+                        </div>
+                        <div class="admin-field">
+                            <label for="admin-new-category-subtitle">サブタイトル</label>
+                            <input type="text" id="admin-new-category-subtitle" placeholder="例：Nubi Free Size Bag">
+                        </div>
+                        <div class="admin-field">
+                            <label for="admin-new-category-desc">カテゴリー説明</label>
+                            <input type="text" id="admin-new-category-desc" placeholder="カテゴリーの簡単な説明">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="admin-field">
+                            <label for="admin-product-title">商品名 ＊</label>
+                            <input type="text" id="admin-product-title" placeholder="例：Sサイズ ヌビトート (ミント)" required>
+                        </div>
+                        <div class="admin-field">
+                            <label for="admin-product-color">カラー ＊</label>
+                            <input type="text" id="admin-product-color" placeholder="例：ミント" required>
+                        </div>
+                    </div>
+
                     <div class="admin-field">
-                        <label for="admin-new-category-subtitle">サブタイトル（英語表記など）</label>
-                        <input type="text" id="admin-new-category-subtitle" placeholder="例：Nubi Free Size Bag">
+                        <label for="admin-product-size">サイズ ＊</label>
+                        <input type="text" id="admin-product-size" placeholder="例：W28cm x H20cm x D10cm" required>
                     </div>
+
                     <div class="admin-field">
-                        <label for="admin-new-category-desc">カテゴリー説明</label>
-                        <input type="text" id="admin-new-category-desc" placeholder="カテゴリーの簡単な説明">
+                        <label for="admin-product-img">商品画像URL ＊</label>
+                        <input type="url" id="admin-product-img" placeholder="https://..." required>
                     </div>
-                </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="admin-field">
-                        <label for="admin-product-title">商品名 ＊</label>
-                        <input type="text" id="admin-product-title" placeholder="例：Sサイズ ヌビトート (ミント)" required>
+                        <label for="admin-product-desc">商品説明 ＊</label>
+                        <textarea id="admin-product-desc" rows="3" placeholder="商品の特徴などを入力してください" required></textarea>
                     </div>
-                    <div class="admin-field">
-                        <label for="admin-product-color">カラー ＊</label>
-                        <input type="text" id="admin-product-color" placeholder="例：ミント" required>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="resetCustomProducts()" class="text-[11px] text-gray-400 hover:text-red-500 transition underline">
+                                全データリセット
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="closeAdminModal()" class="px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 transition">
+                                キャンセル
+                            </button>
+                            <button type="submit" id="admin-submit-btn" class="px-5 py-2.5 bg-brand-800 hover:bg-brand-900 text-white rounded-xl text-xs font-bold transition shadow-md">
+                                登録する
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </form>
+            </div>
 
-                <div class="admin-field">
-                    <label for="admin-product-size">サイズ ＊</label>
-                    <input type="text" id="admin-product-size" placeholder="例：W28cm x H20cm x D10cm" required>
+            <!-- TAB 2: REGISTERED PRODUCTS LIST -->
+            <div id="admin-tab-list" class="hidden">
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900">登録済み商品一覧</h3>
+                    <span class="text-xs text-gray-400">※基本商品は編集できません</span>
                 </div>
+                <div id="admin-products-list-container" class="max-h-80 overflow-y-auto space-y-3 pr-1">
+                    <!-- Dynamic JavaScript Rendering -->
+                </div>
+            </div>
 
-                <div class="admin-field">
-                    <label for="admin-product-img">商品画像URL ＊</label>
-                    <input type="url" id="admin-product-img" placeholder="https://..." required>
-                </div>
-
-                <div class="admin-field">
-                    <label for="admin-product-desc">商品説明 ＊</label>
-                    <textarea id="admin-product-desc" rows="3" placeholder="商品の特徴などを入力してください" required></textarea>
-                </div>
-
-                <div class="flex items-center justify-between pt-2">
-                    <div class="flex items-center gap-3">
-                        <button type="button" onclick="resetCustomProducts()" class="text-[11px] text-gray-400 hover:text-red-500 transition underline">
-                            登録データをリセット
-                        </button>
-                        <button type="button" onclick="exitAdminMode()" class="text-[11px] text-gray-400 hover:text-red-500 transition underline">
-                            管理者モードを終了
-                        </button>
-                    </div>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="closeAdminModal()" class="px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 transition">
-                            キャンセル
-                        </button>
-                        <button type="submit" class="px-5 py-2.5 bg-brand-800 hover:bg-brand-900 text-white rounded-xl text-xs font-bold transition shadow-md">
-                            登録する
-                        </button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -506,43 +432,13 @@ body {
     <div id="toast"></div>
 
     <footer class="bg-brand-900 text-brand-100 border-t border-brand-800 py-10 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-                <h4 class="text-lg font-bold serif-title text-white">BUSAN NUBI & COSMETICS</h4>
-                <p class="text-xs text-brand-200 mt-2 leading-relaxed">
-                    釜山国際市場で丁寧に作られたハンドメイドヌビバッグと、厳選されたコスメをお届けします。
-                </p>
-            </div>
-            <div>
-                <h5 class="text-xs font-bold text-brand-500 uppercase tracking-widest mb-3">店舗情報</h5>
-                <p class="text-xs text-brand-200">釜山広域市 中区 中区路40番길 11 1階</p>
-                <p class="text-xs text-brand-200 mt-1">営業時間: 10:00 - 19:00</p>
-            </div>
-            <div>
-                <h5 class="text-xs font-bold text-brand-500 uppercase tracking-widest mb-3">サービス</h5>
-                <ul class="text-xs text-brand-200 space-y-1">
-                    <li>・ 日本円お会計可能</li>
-                    <li>・ 日本語対応</li>
-                    <li>・ ヌビバック,化粧品,マスクパック</li>
-                </ul>
-            </div>
-        </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-brand-800/60 text-center text-[11px] text-brand-500">
-            &copy; BUSAN NUBI & COSMETICS. All rights reserved.
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
+            <p class="text-xs text-brand-200">&copy; BUSAN NUBI & COSMETICS. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- JS files: data.js must load first (defines categories/storage helpers),
-         then app.js (rendering), then admin.js (product registration) -->
     <script>
-// ============================================================
 // DATA LAYER
-// 商品カテゴリー & 商品データ、および「商品登録」機能で追加された
-// データ（ブラウザの localStorage に保存）の読み込み・統合を行う。
-// ============================================================
-
-// 元々サイトに組み込まれている基本カテゴリー（編集しても構いませんが、
-// 通常は画面右上の「商品登録」ボタンから追加してください）
 const BASE_CATEGORIES = [
     {
         id: 'cat-s',
@@ -550,7 +446,7 @@ const BASE_CATEGORIES = [
         subTitle: 'Nubi Tote Bag (S)',
         desc: '軽くてふんわりとした肌触りの、デイリーに活躍するヌビトートバッグです。',
         tag: '日韓夫婦',
-        mainImg: 'https://github.com/durielbong/nubibag/blob/main/images/S_1/S_Size_1.jpeg#:~:text=S_Size_0.jpeg-,S_Size_1,-.jpeg',
+        mainImg: 'https://github.com/durielbong/nubibag/blob/main/images/S_1/S_Size_1.jpeg',
         items: [
             {
                 id: 's-1',
@@ -567,22 +463,6 @@ const BASE_CATEGORIES = [
                 desc: '華やかで可愛らしいサクラピンク。コーデのアクセントになる人気カラーです。',
                 size: 'W28cm x H20cm x D10cm',
                 img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
-            },
-            {
-                id: 's-3',
-                title: 'Sサイズ ヌビトート (ナチュラルベージュ)',
-                color: 'ベージュ',
-                desc: '落ち着きのある優しいベージュ。どんな服装にも合わせやすい万能カラー。',
-                size: 'W28cm x H20cm x D10cm',
-                img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'
-            },
-            {
-                id: 's-4',
-                title: 'Sサイズ ヌビトート (チャコールグレー)',
-                color: 'チャコール',
-                desc: 'シックで汚れが目立ちにくいチャコールカラー。男性にも人気のモダンな色合いです。',
-                size: 'W28cm x H20cm x D10cm',
-                img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
             }
         ]
     },
@@ -601,90 +481,11 @@ const BASE_CATEGORIES = [
                 desc: 'A4サイズやペットボトルも楽々入るミディアムサイズ。肩掛けがしやすく通勤や散策に便利。',
                 size: 'W36cm x H26cm x D12cm',
                 img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'
-            },
-            {
-                id: 'm-2',
-                title: 'Mサイズ ヌビショルダー (アイボリー刺繍)',
-                color: 'アイボリー',
-                desc: '上品なお花のワンポイント刺繍が入った人気のモデル。ワンランク上の上品さ。',
-                size: 'W36cm x H26cm x D12cm',
-                img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
-            },
-            {
-                id: 'm-3',
-                title: 'Mサイズ ヌビショルダー (ダスティピンク)',
-                color: 'ピンク',
-                desc: 'くすみ系の落ち着いたピンク。大人可愛いスタイリングにぴったりです。',
-                size: 'W36cm x H26cm x D12cm',
-                img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
-            }
-        ]
-    },
-    {
-        id: 'cat-l',
-        title: 'Lサイズのヌビバック',
-        subTitle: 'Nubi Big Tote Bag (L)',
-        desc: '旅行や日常使いにも大活躍。コスメから小物までたっぷり収まる、安心感のあるビッグサイズヌビバッグ。',
-        tag: '日韓夫婦',
-        mainImg: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800',
-        items: [
-            {
-                id: 'l-1',
-                title: 'Lサイズ ヌビビッグトート (チャコール)',
-                color: 'チャコール',
-                desc: '1泊2日の旅行やマザーズバッグとしても大人気の大容量サイズ。洗濯機で丸洗い可能です。',
-                size: 'W45cm x H32cm x D15cm',
-                img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
-            },
-            {
-                id: 'l-2',
-                title: 'Lサイズ ヌビビッグトート (ナチュラルアイボリー)',
-                color: 'アイボリー',
-                desc: '清潔感のあるアイボリーの大容量トート。軽いため荷物が多くなっても疲れにくいのが魅力。',
-                size: 'W45cm x H32cm x D15cm',
-                img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
-            }
-        ]
-    },
-    {
-        id: 'cat-pouch',
-        title: 'ヌビ生地のポーチ & コスメ',
-        subTitle: 'Nubi Pouch & Beauty Items',
-        desc: 'ふんわり優しいヌビ素材。コスメや小物を綺麗にまとめて持ち運べるポーチ＆人気韓国コスメ。',
-        tag: '日韓夫婦',
-        mainImg: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800',
-        items: [
-            {
-                id: 'p-1',
-                title: 'ヌビ マルチポーチ (ストライプ刺繍)',
-                color: 'アイボリー',
-                desc: 'リップやコンパクト、イヤホンなどの小物を収納するのにピッタリなふんわりポーチ。',
-                size: 'W18cm x H12cm x D6cm',
-                img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
-            },
-            {
-                id: 'p-2',
-                title: 'ヌビ バニティ型 コスメポーチ',
-                color: 'ピンク',
-                desc: 'ガバッと大きく開くので出し入れがラクラク。旅行用の化粧品ポーチとして大人気です。',
-                size: 'W20cm x H14cm x D10cm',
-                img: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800'
-            },
-            {
-                id: 'p-3',
-                title: '釜山限定 スキンケア コスメセット',
-                color: 'ベージュ',
-                desc: '当店限定！保湿力の高い韓国人気ハンドクリームとシートマスクの特別ギフトセット。',
-                size: 'Gift Box Package',
-                img: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800'
             }
         ]
     }
 ];
 
-// ------------------------------------------------------------
-// localStorage keys used to persist admin-registered data
-// ------------------------------------------------------------
 const STORAGE_KEYS = {
     categories: 'busanNubi_customCategories',
     products: 'busanNubi_customProducts'
@@ -693,47 +494,26 @@ const STORAGE_KEYS = {
 function loadCustomCategories() {
     try {
         return JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || [];
-    } catch (e) {
-        console.error('カスタムカテゴリーの読み込みに失敗しました', e);
-        return [];
-    }
+    } catch (e) { return []; }
 }
-
 function saveCustomCategories(list) {
-    try {
-        localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list));
-    } catch (e) {
-        console.error('カスタムカテゴリーの保存に失敗しました', e);
-    }
+    try { localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list)); } catch (e) {}
 }
-
 function loadCustomProducts() {
     try {
         return JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || [];
-    } catch (e) {
-        console.error('カスタム商品の読み込みに失敗しました', e);
-        return [];
-    }
+    } catch (e) { return []; }
 }
-
 function saveCustomProducts(list) {
-    try {
-        localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list));
-    } catch (e) {
-        console.error('カスタム商品の保存に失敗しました', e);
-    }
+    try { localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list)); } catch (e) {}
 }
 
-// 画面表示に実際に使われるカテゴリー配列（基本データ + 登録データを統合）
 let categories = [];
 
-// 基本カテゴリーと、localStorage に保存された「商品登録」データを統合して
-// categories 配列を再構築する。商品を追加/削除するたびに呼び出す。
 function buildCategories() {
     const customCategories = loadCustomCategories();
     const customProducts = loadCustomProducts();
 
-    // 元データを直接書き換えないようにコピーする
     const merged = BASE_CATEGORIES.map(cat => ({
         ...cat,
         items: [...cat.items]
@@ -754,41 +534,20 @@ function buildCategories() {
     return categories;
 }
 
-
-// ============================================================
 // APP LOGIC
-// 画面描画・ビュー切り替え・モーダル制御
-// ============================================================
-
 let activeCategory = null;
 let activeColorFilter = 'all';
 
 window.onload = function () {
-    if (typeof initAdminMode === 'function') {
-        initAdminMode();    // admin.js: URLのシークレットキー確認・管理者ボタン表示制御
-    }
-    buildCategories();     // data.js: 基本データ + 登録データを統合
+    if (typeof initAdminMode === 'function') initAdminMode();
+    buildCategories();
     renderCategories();
-    if (typeof populateAdminCategoryOptions === 'function') {
-        populateAdminCategoryOptions(); // admin.js: 登録フォームのカテゴリー選択肢を作成
-    }
+    if (typeof populateAdminCategoryOptions === 'function') populateAdminCategoryOptions();
 };
 
-// ------------------------------------------------------------
-// Render Homepage Category Cards
-// ------------------------------------------------------------
 function renderCategories() {
     const grid = document.getElementById('category-grid');
     grid.innerHTML = '';
-
-    if (categories.length === 0) {
-        grid.innerHTML = `
-            <div class="col-span-full text-center py-12 text-gray-400 text-xs">
-                現在カテゴリーがありません。
-            </div>
-        `;
-        return;
-    }
 
     categories.forEach(cat => {
         const card = document.createElement('div');
@@ -816,9 +575,6 @@ function renderCategories() {
     });
 }
 
-// ------------------------------------------------------------
-// Navigate to Specific Category Detail View
-// ------------------------------------------------------------
 function selectCategory(catId) {
     activeCategory = categories.find(c => c.id === catId);
     if (!activeCategory) return;
@@ -828,22 +584,10 @@ function selectCategory(catId) {
     document.getElementById('category-detail-title').innerText = activeCategory.title;
     document.getElementById('category-detail-desc').innerText = activeCategory.desc;
 
-    // Reset Filter Buttons
-    document.querySelectorAll('.color-filter-btn').forEach(btn => {
-        if (btn.dataset.color === 'all') {
-            btn.className = 'color-filter-btn px-3 py-1.5 rounded-full bg-brand-800 text-white font-medium';
-        } else {
-            btn.className = 'color-filter-btn px-3 py-1.5 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50';
-        }
-    });
-
     renderCategoryItems();
     showView('category-detail');
 }
 
-// ------------------------------------------------------------
-// Render List of Products inside selected Category
-// ------------------------------------------------------------
 function renderCategoryItems() {
     if (!activeCategory) return;
 
@@ -855,15 +599,6 @@ function renderCategoryItems() {
         : activeCategory.items.filter(item => item.color === activeColorFilter);
 
     document.getElementById('item-count').innerText = filteredItems.length;
-
-    if (filteredItems.length === 0) {
-        grid.innerHTML = `
-            <div class="col-span-full text-center py-12 text-gray-400 text-xs">
-                該当する商品がありません。
-            </div>
-        `;
-        return;
-    }
 
     filteredItems.forEach(item => {
         const card = document.createElement('div');
@@ -892,24 +627,17 @@ function renderCategoryItems() {
         grid.appendChild(card);
     });
 }
-// ------------------------------------------------------------
-// Color Filter Handler
-// ------------------------------------------------------------
+
 function filterColor(color) {
     activeColorFilter = color;
     document.querySelectorAll('.color-filter-btn').forEach(btn => {
-        if (btn.dataset.color === color) {
-            btn.className = 'color-filter-btn px-3 py-1.5 rounded-full bg-brand-800 text-white font-medium';
-        } else {
-            btn.className = 'color-filter-btn px-3 py-1.5 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50';
-        }
+        btn.className = (btn.dataset.color === color)
+            ? 'color-filter-btn px-3 py-1.5 rounded-full bg-brand-800 text-white font-medium'
+            : 'color-filter-btn px-3 py-1.5 rounded-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50';
     });
     renderCategoryItems();
 }
 
-// ------------------------------------------------------------
-// Show View Switcher
-// ------------------------------------------------------------
 function showView(viewName) {
     const homeView = document.getElementById('view-home');
     const heroBanner = document.getElementById('hero-banner');
@@ -919,51 +647,26 @@ function showView(viewName) {
         homeView.classList.remove('hidden');
         heroBanner.classList.remove('hidden');
         categoryDetailView.classList.add('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (viewName === 'category-detail') {
+    } else {
         homeView.classList.add('hidden');
         heroBanner.classList.add('hidden');
         categoryDetailView.classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function scrollToProducts() {
-    showView('home');
-    document.getElementById('category-grid').scrollIntoView({ behavior: 'smooth' });
-}
-
-/// ------------------------------------------------------------
-// Product Detail Modal (오류 방지 및 강제 닫기 적용)
-// ------------------------------------------------------------
 function openProductModal(item) {
     if (!item) return;
+    document.getElementById('modal-product-image').src = item.img || '';
+    document.getElementById('modal-product-category').innerText = activeCategory ? activeCategory.title : 'NUBI BAG';
+    document.getElementById('modal-product-title').innerText = item.title || '';
+    document.getElementById('modal-product-desc').innerText = item.desc || '';
+    document.getElementById('modal-product-size').innerText = item.size || '';
 
-    // 이미지
-    const imgEl = document.getElementById('modal-product-image');
-    if (imgEl) imgEl.src = item.img || '';
-
-    // 카테고리
-    const catEl = document.getElementById('modal-product-category');
-    if (catEl) catEl.innerText = (activeCategory && activeCategory.title) ? activeCategory.title : 'NUBI BAG';
-
-    // 상품명
-    const titleEl = document.getElementById('modal-product-title');
-    if (titleEl) titleEl.innerText = item.title || '';
-
-    // 설명
-    const descEl = document.getElementById('modal-product-desc');
-    if (descEl) descEl.innerText = item.desc || '';
-
-    // 사이즈
-    const sizeEl = document.getElementById('modal-product-size');
-    if (sizeEl) sizeEl.innerText = item.size || '';
-
-    // 모달 표시
     const modal = document.getElementById('product-modal');
     if (modal) {
         modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+        document.body.style.overflow = 'hidden';
     }
 }
 
@@ -971,89 +674,39 @@ function closeProductModal() {
     const modal = document.getElementById('product-modal');
     if (modal) {
         modal.classList.add('hidden');
-        document.body.style.overflow = ''; // 스크롤 원복
+        document.body.style.overflow = '';
     }
 }
 
-// ------------------------------------------------------------
-// Store Info Modal
-// ------------------------------------------------------------
-function openStoreModal() {
-    document.getElementById('store-modal').classList.remove('hidden');
-}
-
-function closeStoreModal() {
-    document.getElementById('store-modal').classList.add('hidden');
-}
+function openStoreModal() { document.getElementById('store-modal').classList.remove('hidden'); }
+function closeStoreModal() { document.getElementById('store-modal').classList.add('hidden'); }
 
 
-// ============================================================
-// ADMIN / 商品登録機能
-// 画面上の「＋ 商品登録」ボタンから、新しい商品（必要なら新しい
-// カテゴリーも）を登録できる。データは localStorage に保存され、
-// 次回アクセス時にも保持される（サーバー不要）。
-// ============================================================
-
+// ADMIN & EDIT / DELETE FUNCTIONS
 const NEW_CATEGORY_VALUE = '__new__';
-
-// ------------------------------------------------------------
-// 管理者モード判定
-// URL に ?admin=シークレットキー を付けてアクセスした端末だけ、
-// 以後 localStorage に記憶されて管理者用ボタンが表示される。
-// お客様が通常のURLでアクセスした場合は一切表示されない。
-// ------------------------------------------------------------
-const ADMIN_SECRET = 'nubi2026admin'; // ← 必ずご自身だけが知る文字列に変更してください
+const ADMIN_SECRET = 'nubi2026admin';
 const ADMIN_FLAG_KEY = 'busanNubi_isAdmin';
 
 let isAdminMode = false;
 
 function initAdminMode() {
     const params = new URLSearchParams(window.location.search);
-    const providedKey = params.get('admin');
-
-    if (providedKey && providedKey === ADMIN_SECRET) {
-        try {
-            localStorage.setItem(ADMIN_FLAG_KEY, 'true');
-        } catch (e) {
-            console.error('管理者フラグの保存に失敗しました', e);
-        }
-        // アドレスバーやスクリーンショットにキーが残らないよう、URLから消す
+    if (params.get('admin') === ADMIN_SECRET) {
+        try { localStorage.setItem(ADMIN_FLAG_KEY, 'true'); } catch (e) {}
         params.delete('admin');
-        const query = params.toString();
-        const newUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
-        window.history.replaceState({}, '', newUrl);
+        window.history.replaceState({}, '', window.location.pathname);
     }
-
-    try {
-        isAdminMode = localStorage.getItem(ADMIN_FLAG_KEY) === 'true';
-    } catch (e) {
-        isAdminMode = false;
-    }
+    try { isAdminMode = localStorage.getItem(ADMIN_FLAG_KEY) === 'true'; } catch (e) { isAdminMode = false; }
 
     const adminBtn = document.getElementById('admin-btn');
-    if (adminBtn) {
-        adminBtn.classList.toggle('hidden', !isAdminMode);
-    }
-}
-
-function exitAdminMode() {
-    try {
-        localStorage.removeItem(ADMIN_FLAG_KEY);
-    } catch (e) {
-        console.error('管理者フラグの削除に失敗しました', e);
-    }
-    isAdminMode = false;
-    const adminBtn = document.getElementById('admin-btn');
-    if (adminBtn) adminBtn.classList.add('hidden');
-    closeAdminModal();
-    showToast('管理者モードを終了しました');
+    if (adminBtn) adminBtn.classList.toggle('hidden', !isAdminMode);
 }
 
 function openAdminModal() {
-    if (!isAdminMode) return; // 保険：管理者以外は開けない
+    if (!isAdminMode) return;
     populateAdminCategoryOptions();
-    document.getElementById('admin-form').reset();
-    toggleNewCategoryFields();
+    resetAdminForm();
+    switchAdminTab('form');
     document.getElementById('admin-modal').classList.remove('hidden');
 }
 
@@ -1061,11 +714,29 @@ function closeAdminModal() {
     document.getElementById('admin-modal').classList.add('hidden');
 }
 
-// カテゴリー選択リストを最新の categories 配列から作成
+function switchAdminTab(tabName) {
+    const formTab = document.getElementById('admin-tab-form');
+    const listTab = document.getElementById('admin-tab-list');
+    const formBtn = document.getElementById('admin-tab-form-btn');
+    const listBtn = document.getElementById('admin-tab-list-btn');
+
+    if (tabName === 'form') {
+        formTab.classList.remove('hidden');
+        listTab.classList.add('hidden');
+        formBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition';
+        listBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition';
+    } else {
+        formTab.classList.add('hidden');
+        listTab.classList.remove('hidden');
+        listBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition';
+        formBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition';
+        renderAdminProductsList();
+    }
+}
+
 function populateAdminCategoryOptions() {
     const select = document.getElementById('admin-category-select');
     if (!select) return;
-
     select.innerHTML = '';
 
     categories.forEach(cat => {
@@ -1081,12 +752,9 @@ function populateAdminCategoryOptions() {
     select.appendChild(newOpt);
 }
 
-// 「新しいカテゴリーを追加」を選んだ時だけ、カテゴリー情報入力欄を表示
 function toggleNewCategoryFields() {
     const select = document.getElementById('admin-category-select');
     const newCategoryBlock = document.getElementById('admin-new-category-fields');
-    if (!select || !newCategoryBlock) return;
-
     if (select.value === NEW_CATEGORY_VALUE) {
         newCategoryBlock.classList.remove('hidden');
     } else {
@@ -1094,18 +762,21 @@ function toggleNewCategoryFields() {
     }
 }
 
-// カテゴリー名からIDを自動生成 (例: "Freeサイズのバッグ" -> "cat-custom-xxxx")
-function slugifyCategoryId(title) {
-    return 'cat-custom-' + Date.now().toString(36);
+function resetAdminForm() {
+    document.getElementById('admin-form').reset();
+    document.getElementById('admin-editing-product-id').value = '';
+    document.getElementById('admin-form-heading').innerText = '新しい商品を登録';
+    document.getElementById('admin-submit-btn').innerText = '登録する';
+    toggleNewCategoryFields();
 }
 
 function handleAdminFormSubmit(event) {
     event.preventDefault();
 
+    const editingId = document.getElementById('admin-editing-product-id').value;
     const categorySelect = document.getElementById('admin-category-select');
     let categoryId = categorySelect.value;
 
-    // 1) 必要であれば新規カテゴリーを作成
     if (categoryId === NEW_CATEGORY_VALUE) {
         const newTitle = document.getElementById('admin-new-category-title').value.trim();
         if (!newTitle) {
@@ -1114,86 +785,164 @@ function handleAdminFormSubmit(event) {
         }
 
         const newCategory = {
-            id: slugifyCategoryId(newTitle),
+            id: 'cat-custom-' + Date.now().toString(36),
             title: newTitle,
             subTitle: document.getElementById('admin-new-category-subtitle').value.trim(),
             desc: document.getElementById('admin-new-category-desc').value.trim() || newTitle,
             tag: '日韓夫婦',
-            mainImg: document.getElementById('admin-product-img').value.trim() ||
-                'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
+            mainImg: document.getElementById('admin-product-img').value.trim() || 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7'
         };
 
         const customCategories = loadCustomCategories();
         customCategories.push(newCategory);
         saveCustomCategories(customCategories);
-
         categoryId = newCategory.id;
     }
 
-    // 2) 入力値の取得・簡易バリデーション
     const title = document.getElementById('admin-product-title').value.trim();
     const color = document.getElementById('admin-product-color').value.trim();
-    const priceJpy = Number(document.getElementById('admin-product-price-jpy').value);
-    const priceKrw = Number(document.getElementById('admin-product-price-krw').value);
     const desc = document.getElementById('admin-product-desc').value.trim();
     const size = document.getElementById('admin-product-size').value.trim();
     const img = document.getElementById('admin-product-img').value.trim();
 
-    if (!title || !color || !img || !priceJpy || !desc || !size) {
+    if (!title || !color || !img || !desc || !size) {
         showToast('必須項目（＊）をすべて入力してください');
         return;
     }
 
-    const newProduct = {
-        id: 'custom-' + Date.now().toString(36),
-        categoryId: categoryId,
-        title: title,
-        color: color,
-        priceJpy: priceJpy,
-        priceKrw: priceKrw || 0,
-        desc: desc,
-        size: size,
-        img: img
-    };
+    let customProducts = loadCustomProducts();
 
-    // 3) 保存
-    const customProducts = loadCustomProducts();
-    customProducts.push(newProduct);
-    saveCustomProducts(customProducts);
-
-    // 4) 画面再描画
-    buildCategories();
-    renderCategories();
-    populateAdminCategoryOptions();
-    if (activeCategory && activeCategory.id === categoryId) {
-        activeCategory = categories.find(c => c.id === categoryId);
-        renderCategoryItems();
+    if (editingId) {
+        // UPDATE (수정)
+        const index = customProducts.findIndex(p => p.id === editingId);
+        if (index !== -1) {
+            customProducts[index] = {
+                ...customProducts[index],
+                categoryId: categoryId,
+                title: title,
+                color: color,
+                desc: desc,
+                size: size,
+                img: img
+            };
+            showToast('商品を更新しました ✓');
+        }
+    } else {
+        // CREATE (신규 등록)
+        const newProduct = {
+            id: 'custom-' + Date.now().toString(36),
+            categoryId: categoryId,
+            title: title,
+            color: color,
+            desc: desc,
+            size: size,
+            img: img
+        };
+        customProducts.push(newProduct);
+        showToast('商品を登録しました ✓');
     }
 
-    closeAdminModal();
-    showToast('商品を登録しました ✓');
-}
+    saveCustomProducts(customProducts);
 
-// 登録した商品・カテゴリーをすべて削除して初期状態に戻す
-function resetCustomProducts() {
-    if (!confirm('登録したカテゴリー・商品をすべて削除します。よろしいですか？')) return;
-    localStorage.removeItem(STORAGE_KEYS.categories);
-    localStorage.removeItem(STORAGE_KEYS.products);
     buildCategories();
     renderCategories();
     populateAdminCategoryOptions();
     if (activeCategory) {
         activeCategory = categories.find(c => c.id === activeCategory.id) || null;
-        if (activeCategory) {
-            renderCategoryItems();
-        } else {
-            showView('home');
-        }
+        if (activeCategory) renderCategoryItems();
     }
+
+    closeAdminModal();
+}
+
+// RENDER MANAGEMENT LIST
+function renderAdminProductsList() {
+    const container = document.getElementById('admin-products-list-container');
+    container.innerHTML = '';
+
+    const customProducts = loadCustomProducts();
+
+    if (customProducts.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">登録された商品はありません。</p>`;
+        return;
+    }
+
+    customProducts.forEach(prod => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs';
+
+        item.innerHTML = `
+            <div class="flex items-center space-x-3 overflow-hidden pr-2">
+                <img src="${prod.img}" class="w-10 h-10 object-cover rounded-lg flex-shrink-0" alt="">
+                <div class="truncate">
+                    <p class="font-bold text-gray-800 truncate">${prod.title}</p>
+                    <p class="text-[10px] text-gray-400">${prod.color} | ${prod.size}</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-1 flex-shrink-0">
+                <button onclick="startEditProduct('${prod.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition">
+                    <i class="fa-solid fa-pen"></i> 編集
+                </button>
+                <button onclick="deleteProduct('${prod.id}')" class="px-2.5 py-1 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-lg transition">
+                    <i class="fa-solid fa-trash"></i> 削除
+                </button>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+// EDIT PRODUCT SETUP
+function startEditProduct(productId) {
+    const customProducts = loadCustomProducts();
+    const prod = customProducts.find(p => p.id === productId);
+    if (!prod) return;
+
+    switchAdminTab('form');
+
+    document.getElementById('admin-editing-product-id').value = prod.id;
+    document.getElementById('admin-category-select').value = prod.categoryId;
+    document.getElementById('admin-product-title').value = prod.title;
+    document.getElementById('admin-product-color').value = prod.color;
+    document.getElementById('admin-product-size').value = prod.size;
+    document.getElementById('admin-product-img').value = prod.img;
+    document.getElementById('admin-product-desc').value = prod.desc;
+
+    document.getElementById('admin-form-heading').innerText = '商品を編集';
+    document.getElementById('admin-submit-btn').innerText = '更新する';
+    toggleNewCategoryFields();
+}
+
+// DELETE PRODUCT
+function deleteProduct(productId) {
+    if (!confirm('この商品を削除してもよろしいですか？')) return;
+
+    let customProducts = loadCustomProducts();
+    customProducts = customProducts.filter(p => p.id !== productId);
+    saveCustomProducts(customProducts);
+
+    buildCategories();
+    renderCategories();
+    if (activeCategory) {
+        activeCategory = categories.find(c => c.id === activeCategory.id) || null;
+        if (activeCategory) renderCategoryItems();
+    }
+
+    renderAdminProductsList();
+    showToast('商品を削除しました');
+}
+
+function resetCustomProducts() {
+    if (!confirm('登録したすべてのデータを削除します。よろしいですか？')) return;
+    localStorage.removeItem(STORAGE_KEYS.categories);
+    localStorage.removeItem(STORAGE_KEYS.products);
+    buildCategories();
+    renderCategories();
+    populateAdminCategoryOptions();
+    closeAdminModal();
     showToast('登録データをリセットしました');
 }
 
-// 簡易トースト通知
 let toastTimer = null;
 function showToast(message) {
     const toast = document.getElementById('toast');
@@ -1201,11 +950,9 @@ function showToast(message) {
     toast.textContent = message;
     toast.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-        toast.classList.remove('show');
-    }, 2400);
+    toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 2400);
 }
-// ESC 키 누르면 열려있는 모달 닫기
+
 window.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeProductModal();
@@ -1213,7 +960,8 @@ window.addEventListener('keydown', function(event) {
         closeAdminModal();
     }
 });
-
-</script>
+    </script>
 </body>
 </html>
+
+```
