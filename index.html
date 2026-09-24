@@ -404,13 +404,44 @@ body {
                 <div id="admin-products-list-container" class="max-h-80 overflow-y-auto space-y-3 pr-1"></div>
             </div>
 
-            <!-- TAB 3: REGISTERED CATEGORIES LIST -->
+            <!-- TAB 3: CATEGORY MANAGEMENT (Create & Delete) -->
             <div id="admin-tab-cat" class="hidden">
-                <div class="mb-4 flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">登録済みカテゴリー一覧</h3>
-                    <span class="text-xs text-gray-400">※基本カテゴリーは削除できません</span>
+                <!-- Category Add Form -->
+                <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6">
+                    <h4 class="text-xs font-bold text-brand-800 uppercase tracking-wider mb-3"><i class="fa-solid fa-plus-circle mr-1"></i> 新しいカテゴリーを登録</h4>
+                    <form id="admin-cat-form" onsubmit="handleCategoryFormSubmit(event)" class="space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="admin-field">
+                                <label for="cat-add-title">カテゴリー名 ＊</label>
+                                <input type="text" id="cat-add-title" placeholder="例：ポーチ＆小物" required>
+                            </div>
+                            <div class="admin-field">
+                                <label for="cat-add-subtitle">サブタイトル</label>
+                                <input type="text" id="cat-add-subtitle" placeholder="例：Pouch & Goods">
+                            </div>
+                        </div>
+                        <div class="admin-field">
+                            <label for="cat-add-img">代表画像URL ＊</label>
+                            <input type="url" id="cat-add-img" placeholder="https://..." required>
+                        </div>
+                        <div class="admin-field">
+                            <label for="cat-add-desc">説明</label>
+                            <input type="text" id="cat-add-desc" placeholder="カテゴリーの簡潔な説明">
+                        </div>
+                        <div class="flex justify-end pt-1">
+                            <button type="submit" class="px-4 py-2 bg-brand-800 hover:bg-brand-900 text-white rounded-lg text-xs font-bold transition shadow-sm">
+                                カテゴリーを追加
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div id="admin-categories-list-container" class="max-h-80 overflow-y-auto space-y-3 pr-1"></div>
+
+                <!-- Category List -->
+                <div class="mb-2 flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">登録済みカテゴリー一覧</h4>
+                    <span class="text-[11px] text-gray-400">※基本カテゴリーは削除できません</span>
+                </div>
+                <div id="admin-categories-list-container" class="max-h-60 overflow-y-auto space-y-3 pr-1"></div>
             </div>
 
         </div>
@@ -769,6 +800,42 @@ function resetAdminForm() {
     toggleNewCategoryFields();
 }
 
+// 独立したカテゴリー登録フォームの送信処理
+function handleCategoryFormSubmit(event) {
+    event.preventDefault();
+
+    const title = document.getElementById('cat-add-title').value.trim();
+    const subtitle = document.getElementById('cat-add-subtitle').value.trim();
+    const img = document.getElementById('cat-add-img').value.trim();
+    const desc = document.getElementById('cat-add-desc').value.trim();
+
+    if (!title || !img) {
+        showToast('必須項目を入力してください');
+        return;
+    }
+
+    const newCategory = {
+        id: 'cat-custom-' + Date.now().toString(36),
+        title: title,
+        subTitle: subtitle || title,
+        desc: desc || title,
+        tag: '日韓夫婦',
+        mainImg: img
+    };
+
+    const customCategories = loadCustomCategories();
+    customCategories.push(newCategory);
+    saveCustomCategories(customCategories);
+
+    buildCategories();
+    renderCategories();
+    populateAdminCategoryOptions();
+    renderAdminCategoriesList();
+
+    document.getElementById('admin-cat-form').reset();
+    showToast('新しいカテゴリーを登録しました ✓');
+}
+
 function handleAdminFormSubmit(event) {
     event.preventDefault();
 
@@ -852,7 +919,6 @@ function handleAdminFormSubmit(event) {
     closeAdminModal();
 }
 
-// RENDER PRODUCTS LIST
 function renderAdminProductsList() {
     const container = document.getElementById('admin-products-list-container');
     container.innerHTML = '';
@@ -889,7 +955,6 @@ function renderAdminProductsList() {
     });
 }
 
-// RENDER CATEGORIES LIST
 function renderAdminCategoriesList() {
     const container = document.getElementById('admin-categories-list-container');
     container.innerHTML = '';
