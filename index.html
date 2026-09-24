@@ -436,10 +436,15 @@ body {
                 </form>
             </div>
 
-            <!-- TAB 2: REGISTERED PRODUCTS LIST -->
+            <!-- TAB 2: REGISTERED PRODUCTS LIST (WITH CATEGORY FILTER) -->
             <div id="admin-tab-list" class="hidden">
-                <div class="mb-4 flex items-center justify-between">
+                <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <h3 class="text-lg font-bold text-gray-900">登録済み商品一覧</h3>
+                    <div class="w-full sm:w-56">
+                        <select id="admin-list-category-filter" onchange="renderAdminProductsList()" class="w-full border border-gray-200 rounded-xl px-3 py-1.5 text-xs bg-white text-gray-700 font-medium shadow-sm focus:outline-none focus:border-brand-500">
+                            <option value="all">すべてのカテゴリー</option>
+                        </select>
+                    </div>
                 </div>
                 <div id="admin-products-list-container" class="max-h-80 overflow-y-auto space-y-3 pr-1"></div>
             </div>
@@ -698,7 +703,6 @@ const STORAGE_KEYS = {
     banners: 'busanNubi_customBanners'
 };
 
-// [수정] 기본 카테고리와 localStorage 카테고리를 함께 합쳐서 반환
 function loadCustomCategories() {
     try { 
         const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || []; 
@@ -713,7 +717,6 @@ function saveCustomCategories(list) {
     try { localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list)); } catch (e) {}
 }
 
-// [수정] 기본 상품과 localStorage 상품을 함께 합쳐서 반환
 function loadCustomProducts() {
     try { 
         const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || []; 
@@ -728,7 +731,6 @@ function saveCustomProducts(list) {
     try { localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list)); } catch (e) {}
 }
 
-// [수정] 기본 배너와 localStorage 배너를 함께 합쳐서 반환
 function loadCustomBanners() {
     try {
         const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.banners)) || [];
@@ -1569,14 +1571,40 @@ function populateBannerProductCheckboxes() {
     });
 }
 
+// [신규] 관리자 상품 목록용 카테고리 필터 셀렉트박스 동기화
+function populateAdminListCategoryFilter() {
+    const select = document.getElementById('admin-list-category-filter');
+    if (!select) return;
+    const currentVal = select.value || 'all';
+    select.innerHTML = '<option value="all">すべてのカテゴリー (전체 카테고리)</option>';
+
+    categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.title;
+        select.appendChild(opt);
+    });
+
+    select.value = currentVal;
+}
+
+// [수정] 카테고리 필터링이 적용된 상품 목록 렌더링
 function renderAdminProductsList() {
+    populateAdminListCategoryFilter();
     const container = document.getElementById('admin-products-list-container');
+    const filterSelect = document.getElementById('admin-list-category-filter');
+    const selectedCatId = filterSelect ? filterSelect.value : 'all';
+
     container.innerHTML = '';
 
-    const customProducts = loadCustomProducts();
+    let customProducts = loadCustomProducts();
+
+    if (selectedCatId !== 'all') {
+        customProducts = customProducts.filter(p => p.categoryId === selectedCatId);
+    }
 
     if (customProducts.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">登録された商品はありません。</p>`;
+        container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">該当する商品がありません。</p>`;
         return;
     }
 
@@ -1705,11 +1733,13 @@ function renderAdminBannersList() {
     });
 }
 
+// [수정] 상품 수정 시작 시 카테고리 목록 동기화
 function startEditProduct(productId) {
     const customProducts = loadCustomProducts();
     const prod = customProducts.find(p => p.id === productId);
     if (!prod) return;
 
+    populateAdminCategoryOptions();
     switchAdminTab('form');
 
     document.getElementById('admin-editing-product-id').value = prod.id;
