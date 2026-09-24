@@ -490,7 +490,7 @@ body {
                 </div>
 
                 <div class="mb-2 flex items-center justify-between">
-                    <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">登録済みカテゴリー一覧</h4>
+                    <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">登録済みカテゴリー一覧 (順序変更可能)</h4>
                 </div>
                 <div id="admin-categories-list-container" class="max-h-60 overflow-y-auto space-y-3 pr-1"></div>
             </div>
@@ -1530,12 +1530,23 @@ function renderAdminCategoriesList() {
         return;
     }
 
-    customCategories.forEach(cat => {
+    customCategories.forEach((cat, index) => {
         const item = document.createElement('div');
         item.className = 'flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs';
 
+        const isFirst = index === 0;
+        const isLast = index === customCategories.length - 1;
+
         item.innerHTML = `
             <div class="flex items-center space-x-3 overflow-hidden pr-2">
+                <div class="flex flex-col space-y-1 flex-shrink-0">
+                    <button onclick="moveCategoryOrder(${index}, -1)" ${isFirst ? 'disabled class="opacity-30 cursor-not-allowed text-gray-400 p-0.5"' : 'class="text-gray-600 hover:text-brand-800 p-0.5 transition"'}>
+                        <i class="fa-solid fa-chevron-up text-[10px]"></i>
+                    </button>
+                    <button onclick="moveCategoryOrder(${index}, 1)" ${isLast ? 'disabled class="opacity-30 cursor-not-allowed text-gray-400 p-0.5"' : 'class="text-gray-600 hover:text-brand-800 p-0.5 transition"'}>
+                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </button>
+                </div>
                 <img src="${cat.mainImg}" class="w-10 h-10 object-cover rounded-lg flex-shrink-0" alt="">
                 <div class="truncate">
                     <p class="font-bold text-gray-800 truncate">${cat.title}</p>
@@ -1550,6 +1561,26 @@ function renderAdminCategoriesList() {
         `;
         container.appendChild(item);
     });
+}
+
+function moveCategoryOrder(index, direction) {
+    let customCategories = loadCustomCategories();
+    const targetIndex = index + direction;
+
+    if (targetIndex < 0 || targetIndex >= customCategories.length) return;
+
+    const temp = customCategories[index];
+    customCategories[index] = customCategories[targetIndex];
+    customCategories[targetIndex] = temp;
+
+    saveCustomCategories(customCategories);
+
+    buildCategories();
+    renderCategories();
+    populateAdminCategoryOptions();
+    renderAdminCategoriesList();
+
+    showToast('カテゴリーの順序を変更しました ✓');
 }
 
 function renderAdminBannersList() {
