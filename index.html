@@ -13,6 +13,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
     
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -618,6 +622,22 @@ body {
     </footer>
 
     <script>
+// [Firebase 설정 - 제공해주신 이미지 정보로 교체 완료]
+const firebaseConfig = {
+  apiKey: "AIzaSyBcns6q2ytcoA-9xwnQaL2zwd_LyytmZGg",
+  authDomain: "busan-nubi.firebaseapp.com",
+  projectId: "busan-nubi",
+  storageBucket: "busan-nubi.firebasestorage.app",
+  messagingSenderId: "1063973350250",
+  appId: "1:1063973350250:web:8bf48f3fab953d75265313",
+  measurementId: "G-KTSDGDGYRM",
+  databaseURL: "https://busan-nubi-default-rtdb.firebaseio.com"
+};
+
+// Initialize Firebase Realtime Database
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 // 기본 공개용 카테고리 시드 데이터
 const DEFAULT_CATEGORIES = [
     {
@@ -677,7 +697,7 @@ const DEFAULT_PRODUCTS = [
     {
         id: 'prod-cosme-1',
         categoryId: 'cat-cosmetics',
-        title: 'アロセル (AROCELL) ススキンケアセット',
+        title: 'アロセル (AROCELL) スキンケアセット',
         color: 'アイボリー',
         size: 'Standard Box',
         desc: 'お肌にうるおいを与えるプレミアムスキンケア。釜山実店舗でも大人気の商品です。',
@@ -703,50 +723,84 @@ const STORAGE_KEYS = {
     banners: 'busanNubi_customBanners'
 };
 
-// [수정] 최초 접속 시에만 시드 데이터를 저장하고, 이후부터는 LocalStorage 데이터를 단독 유지
 function loadCustomCategories() {
     try { 
         const raw = localStorage.getItem(STORAGE_KEYS.categories);
-        if (raw === null) {
-            localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(DEFAULT_CATEGORIES));
-            return [...DEFAULT_CATEGORIES];
-        }
+        if (raw === null) return [...DEFAULT_CATEGORIES];
         return JSON.parse(raw) || [];
     } catch (e) { return DEFAULT_CATEGORIES; }
 }
 
 function saveCustomCategories(list) {
-    try { localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list)); } catch (e) {}
+    try { 
+        localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list)); 
+        syncDataToFirebase();
+    } catch (e) {}
 }
 
 function loadCustomProducts() {
     try { 
         const raw = localStorage.getItem(STORAGE_KEYS.products);
-        if (raw === null) {
-            localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(DEFAULT_PRODUCTS));
-            return [...DEFAULT_PRODUCTS];
-        }
+        if (raw === null) return [...DEFAULT_PRODUCTS];
         return JSON.parse(raw) || [];
     } catch (e) { return DEFAULT_PRODUCTS; }
 }
 
 function saveCustomProducts(list) {
-    try { localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list)); } catch (e) {}
+    try { 
+        localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list)); 
+        syncDataToFirebase();
+    } catch (e) {}
 }
 
 function loadCustomBanners() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.banners);
-        if (raw === null) {
-            localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(DEFAULT_BANNERS));
-            return [...DEFAULT_BANNERS];
-        }
+        if (raw === null) return [...DEFAULT_BANNERS];
         return JSON.parse(raw) || [];
     } catch (e) { return DEFAULT_BANNERS; }
 }
 
 function saveCustomBanners(list) {
-    try { localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(list)); } catch (e) {}
+    try { 
+        localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(list)); 
+        syncDataToFirebase();
+    } catch (e) {}
+}
+
+// [Firebase 실시간 데이터 수신 및 전송 로직]
+function syncDataToFirebase() {
+    const payload = {
+        categories: loadCustomCategories(),
+        products: loadCustomProducts(),
+        banners: loadCustomBanners()
+    };
+    db.ref('storeData').set(payload);
+}
+
+function initFirebaseListener() {
+    db.ref('storeData').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            if (data.categories) localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(data.categories));
+            if (data.products) localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(data.products));
+            if (data.banners) localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(data.banners));
+        } else {
+            // DB가 비어있는 초기 접속 시 시드 데이터 등록
+            syncDataToFirebase();
+        }
+        buildCategories();
+        renderCategories();
+        banners = loadCustomBanners();
+        renderBanners();
+
+        if (document.getElementById('admin-tab-list') && !document.getElementById('admin-tab-list').classList.contains('hidden')) {
+            renderAdminProductsList();
+        }
+        if (document.getElementById('admin-tab-cat') && !document.getElementById('admin-tab-cat').classList.contains('hidden')) {
+            renderAdminCategoriesList();
+        }
+    });
 }
 
 let categories = [];
@@ -778,10 +832,7 @@ let activeColorFilter = 'all';
 
 window.onload = function () {
     if (typeof initAdminMode === 'function') initAdminMode();
-    buildCategories();
-    renderCategories();
-    banners = loadCustomBanners();
-    renderBanners();
+    initFirebaseListener();
     startBannerTimer();
     if (typeof populateAdminCategoryOptions === 'function') populateAdminCategoryOptions();
     setupDragAndDrop();
@@ -1678,7 +1729,6 @@ function renderAdminCategoriesList() {
     });
 }
 
-// [수정] 순서 변경 후 LocalStorage에 즉시 완전 보존
 function moveCategoryOrder(index, direction) {
     let customCategories = loadCustomCategories();
     const targetIndex = index + direction;
@@ -1775,7 +1825,6 @@ function deleteProduct(productId) {
     showToast('商品を削除しました');
 }
 
-// [수정] 카테고리 삭제 시 관련 상품 일괄 삭제 처리 연동
 function deleteCategory(categoryId) {
     let customProducts = loadCustomProducts();
     const categoryProducts = customProducts.filter(p => p.categoryId === categoryId);
@@ -1822,14 +1871,8 @@ function resetCustomProducts() {
     localStorage.removeItem(STORAGE_KEYS.categories);
     localStorage.removeItem(STORAGE_KEYS.products);
     localStorage.removeItem(STORAGE_KEYS.banners);
-    localStorage.removeItem('busanNubi_categories');
-    localStorage.removeItem('busanNubi_products');
     
-    buildCategories();
-    renderCategories();
-    banners = loadCustomBanners();
-    renderBanners();
-    populateAdminCategoryOptions();
+    syncDataToFirebase();
     closeAdminModal();
     showToast('登録データをリセットしました');
 }
