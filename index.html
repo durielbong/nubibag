@@ -613,10 +613,7 @@ body {
     </footer>
 
     <script>
-// =========================================================================
-// [중요] 모든 사용자(일반 계정/방문자)에게 항상 기본 노출할 카테고리 설정
-// 아래 배열에 보여주고 싶으신 카테고리 정보들을 등록해두시면 일반 접속 시에도 표시됩니다.
-// =========================================================================
+// 기본 공개용 카테고리 데이터
 const DEFAULT_CATEGORIES = [
     {
         id: 'cat-s-size',
@@ -652,7 +649,7 @@ const DEFAULT_CATEGORIES = [
     }
 ];
 
-// 기본 상품 데이터 설정
+// 기본 상품 데이터
 const DEFAULT_PRODUCTS = [
     {
         id: 'prod-s-1',
@@ -683,7 +680,7 @@ const DEFAULT_PRODUCTS = [
     }
 ];
 
-// 기본 배너 데이터
+// 기본 배ナー 데이터
 const DEFAULT_BANNERS = [
     {
         id: 'default-banner-1',
@@ -701,30 +698,47 @@ const STORAGE_KEYS = {
     banners: 'busanNubi_customBanners'
 };
 
+// [수정] 기본 카테고리와 localStorage 카테고리를 함께 합쳐서 반환
 function loadCustomCategories() {
     try { 
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || JSON.parse(localStorage.getItem('busanNubi_categories')); 
-        return (stored && stored.length > 0) ? stored : DEFAULT_CATEGORIES;
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || []; 
+        const map = new Map();
+        DEFAULT_CATEGORIES.forEach(cat => map.set(cat.id, cat));
+        stored.forEach(cat => map.set(cat.id, cat));
+        return Array.from(map.values());
     } catch (e) { return DEFAULT_CATEGORIES; }
 }
+
 function saveCustomCategories(list) {
     try { localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list)); } catch (e) {}
 }
+
+// [수정] 기본 상품과 localStorage 상품을 함께 합쳐서 반환
 function loadCustomProducts() {
     try { 
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || JSON.parse(localStorage.getItem('busanNubi_products')); 
-        return (stored && stored.length > 0) ? stored : DEFAULT_PRODUCTS;
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || []; 
+        const map = new Map();
+        DEFAULT_PRODUCTS.forEach(prod => map.set(prod.id, prod));
+        stored.forEach(prod => map.set(prod.id, prod));
+        return Array.from(map.values());
     } catch (e) { return DEFAULT_PRODUCTS; }
 }
+
 function saveCustomProducts(list) {
     try { localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list)); } catch (e) {}
 }
+
+// [수정] 기본 배너와 localStorage 배너를 함께 합쳐서 반환
 function loadCustomBanners() {
     try {
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.banners));
-        return (stored && stored.length > 0) ? stored : DEFAULT_BANNERS;
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.banners)) || [];
+        const map = new Map();
+        DEFAULT_BANNERS.forEach(banner => map.set(banner.id, banner));
+        stored.forEach(banner => map.set(banner.id, banner));
+        return Array.from(map.values());
     } catch (e) { return DEFAULT_BANNERS; }
 }
+
 function saveCustomBanners(list) {
     try { localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(list)); } catch (e) {}
 }
