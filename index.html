@@ -156,7 +156,7 @@ body {
                 <div class="flex items-center space-x-3">
                     <button id="admin-btn" onclick="openAdminModal()" class="hidden flex items-center space-x-1 bg-brand-800 hover:bg-brand-900 text-white px-3 py-1.5 rounded-full text-xs font-medium transition">
                         <i class="fa-solid fa-gear me-1"></i>
-                        <span>商品・カテゴリ管理</span>
+                        <span>管理モード</span>
                     </button>
                     <button onclick="openStoreModal()" class="flex items-center space-x-1 bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 px-3 py-1.5 rounded-full text-xs font-medium transition">
                         <i class="fa-solid me-1 fa-location-dot text-brand-600"></i>
@@ -168,27 +168,25 @@ body {
     </header>
 
     <main class="flex-grow">
-        <div id="hero-banner" class="relative bg-brand-50 border-b border-brand-100 overflow-hidden py-10 sm:py-16">
+        <!-- HERO BANNER ROLLING SLIDER -->
+        <div id="hero-banner-container" class="relative bg-brand-50 border-b border-brand-100 overflow-hidden py-8 sm:py-12 group">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <span class="text-xs tracking-widest text-brand-600 uppercase font-semibold">日韓夫婦 • Gukje Market</span>
-                        <h1 class="text-2xl sm:text-4xl font-bold text-gray-900 mt-2 leading-tight">
-                            ふんわり軽くて優しい質感。<br>
-                            釜山・国際市場のヌビバッグ専門店
-                        </h1>
-                        <p class="mt-3 text-sm sm:text-base text-gray-600 leading-relaxed">
-                            韓国伝統のキルティング生地「ヌビ（イブル）」を使用したハンドメイドバッグと、厳選された人気韓国コスメを取り扱っております。
-                        </p>
-                    </div>
-                    <div class="relative rounded-2xl overflow-hidden shadow-lg h-56 sm:h-72">
-                        <img src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=1200" alt="Nubi Bag Banner" class="w-full h-full object-cover">
-                    </div>
+                <div id="banner-slider" class="relative rounded-2xl overflow-hidden shadow-lg bg-white min-h-[220px] sm:min-h-[300px]">
+                    <!-- Dynamic Banner Items will be rendered here -->
                 </div>
             </div>
+            <!-- Slider Navigation Buttons -->
+            <button onclick="prevBanner()" class="absolute left-6 sm:left-12 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-gray-800 rounded-full flex items-center justify-center shadow-md transition opacity-0 group-hover:opacity-100 z-10">
+                <i class="fa-solid fa-chevron-left text-sm"></i>
+            </button>
+            <button onclick="nextBanner()" class="absolute right-6 sm:right-12 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-gray-800 rounded-full flex items-center justify-center shadow-md transition opacity-0 group-hover:opacity-100 z-10">
+                <i class="fa-solid fa-chevron-right text-sm"></i>
+            </button>
+            <!-- Slider Dots -->
+            <div id="banner-dots" class="flex justify-center space-x-2 mt-4"></div>
         </div>
 
-        <!-- VIEW 1: CATEGORY SELECTION -->
+        <!-- VIEW 1: CATEGORY SELECTION (HOME) -->
         <section id="view-home" class="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
                 <span class="text-xs font-bold tracking-widest text-brand-600 uppercase">ヌビバッグコレクション</span>
@@ -234,6 +232,32 @@ body {
             </div>
 
             <div id="product-items-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- VIEW 3: EVENT / PROMOTION DETAIL PAGE -->
+        <section id="view-event-detail" class="hidden py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+            <div class="flex items-center text-xs text-gray-500 mb-6 space-x-2">
+                <button onclick="showView('home')" class="hover:text-brand-600 transition flex items-center">
+                    <i class="fa-solid fa-house mr-1"></i> HOME
+                </button>
+                <span>/</span>
+                <span class="font-medium text-gray-900">特別企画展</span>
+            </div>
+
+            <div class="relative rounded-2xl overflow-hidden shadow-lg mb-8 bg-brand-800 text-white p-8 sm:p-12">
+                <div id="event-bg-image" class="absolute inset-0 opacity-30 bg-cover bg-center"></div>
+                <div class="relative z-10 max-w-2xl">
+                    <span id="event-tag" class="text-xs font-bold tracking-widest text-brand-200 uppercase bg-white/20 px-3 py-1 rounded-full">SPECIAL EVENT</span>
+                    <h2 id="event-detail-title" class="text-2xl sm:text-4xl font-bold mt-3 leading-tight"></h2>
+                    <p id="event-detail-desc" class="text-sm sm:text-base text-gray-200 mt-3 leading-relaxed"></p>
+                </div>
+            </div>
+
+            <div class="mb-6 pb-2 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-900">企画展 対象商品一覧</h3>
+            </div>
+
+            <div id="event-items-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
         </section>
     </main>
 
@@ -311,7 +335,7 @@ body {
         </div>
     </div>
 
-    <!-- MODAL 3: PRODUCT & CATEGORY MANAGEMENT (ADMIN) -->
+    <!-- MODAL 3: ADMIN MANAGEMENT -->
     <div id="admin-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative fade-in my-8">
             <button onclick="closeAdminModal()" class="absolute top-4 right-4 z-10 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 transition">
@@ -319,15 +343,18 @@ body {
             </button>
 
             <!-- Admin Tab Switcher -->
-            <div class="flex border-b border-gray-200 mb-6">
-                <button id="admin-tab-form-btn" onclick="switchAdminTab('form')" class="py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition">
+            <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
+                <button id="admin-tab-form-btn" onclick="switchAdminTab('form')" class="py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition whitespace-nowrap">
                     <i class="fa-solid fa-pen-to-square mr-1"></i> 商品登録 / 編集
                 </button>
-                <button id="admin-tab-list-btn" onclick="switchAdminTab('list')" class="py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition">
+                <button id="admin-tab-list-btn" onclick="switchAdminTab('list')" class="py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition whitespace-nowrap">
                     <i class="fa-solid fa-boxes-stacked mr-1"></i> 商品一覧
                 </button>
-                <button id="admin-tab-cat-btn" onclick="switchAdminTab('cat')" class="py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition">
+                <button id="admin-tab-cat-btn" onclick="switchAdminTab('cat')" class="py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition whitespace-nowrap">
                     <i class="fa-solid fa-folder-tree mr-1"></i> カテゴリー管理
+                </button>
+                <button id="admin-tab-banner-btn" onclick="switchAdminTab('banner')" class="py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition whitespace-nowrap">
+                    <i class="fa-solid fa-images mr-1"></i> バナー・企画展管理
                 </button>
             </div>
 
@@ -377,7 +404,6 @@ body {
                         <input type="text" id="admin-product-size" placeholder="例：W28cm x H20cm x D10cm" required>
                     </div>
 
-                    <!-- Drag & Drop Product Image Upload Area -->
                     <div class="admin-field">
                         <label>商品画像 ＊</label>
                         <div id="prod-drop-zone" class="drop-zone p-4 rounded-xl text-center cursor-pointer relative" onclick="document.getElementById('prod-file-input').click()">
@@ -389,7 +415,6 @@ body {
                             <div id="prod-placeholder" class="py-4">
                                 <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-400 mb-2"></i>
                                 <p class="text-xs text-gray-600 font-medium">クリックして画像を選択、またはドラッグ＆ドロップ</p>
-                                <p class="text-[10px] text-gray-400 mt-1">PNG, JPG, WEBP 対応</p>
                             </div>
                         </div>
                     </div>
@@ -423,9 +448,8 @@ body {
                 <div id="admin-products-list-container" class="max-h-80 overflow-y-auto space-y-3 pr-1"></div>
             </div>
 
-            <!-- TAB 3: CATEGORY MANAGEMENT (Create & Delete) -->
+            <!-- TAB 3: CATEGORY MANAGEMENT -->
             <div id="admin-tab-cat" class="hidden">
-                <!-- Category Add Form -->
                 <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6">
                     <h4 class="text-xs font-bold text-brand-800 uppercase tracking-wider mb-3"><i class="fa-solid fa-plus-circle mr-1"></i> 新しいカテゴリーを登録</h4>
                     <form id="admin-cat-form" onsubmit="handleCategoryFormSubmit(event)" class="space-y-3">
@@ -442,7 +466,6 @@ body {
                             </div>
                         </div>
 
-                        <!-- Drag & Drop Category Image Upload Area -->
                         <div class="admin-field">
                             <label>代表画像 ＊</label>
                             <div id="cat-drop-zone" class="drop-zone p-3 rounded-xl text-center cursor-pointer relative" onclick="document.getElementById('cat-file-input').click()">
@@ -470,11 +493,70 @@ body {
                     </form>
                 </div>
 
-                <!-- Category List -->
                 <div class="mb-2 flex items-center justify-between">
                     <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">登録済みカテゴリー一覧</h4>
                 </div>
                 <div id="admin-categories-list-container" class="max-h-60 overflow-y-auto space-y-3 pr-1"></div>
+            </div>
+
+            <!-- TAB 4: BANNER & EVENT MANAGEMENT -->
+            <div id="admin-tab-banner" class="hidden">
+                <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6">
+                    <h4 class="text-xs font-bold text-brand-800 uppercase tracking-wider mb-3"><i class="fa-solid fa-plus-circle mr-1"></i> 新しいメインバナー・企画展を追加</h4>
+                    <form id="admin-banner-form" onsubmit="handleBannerFormSubmit(event)" class="space-y-3">
+                        <input type="hidden" id="banner-add-img" value="">
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="admin-field">
+                                <label for="banner-add-title">バナー/企画展 タイトル ＊</label>
+                                <input type="text" id="banner-add-title" placeholder="例：春のヌビバッグ特別セール" required>
+                            </div>
+                            <div class="admin-field">
+                                <label for="banner-add-subtitle">サブタイトル / タグ</label>
+                                <input type="text" id="banner-add-subtitle" placeholder="例：期間限定 20% OFF">
+                            </div>
+                        </div>
+
+                        <div class="admin-field">
+                            <label>バナー背景画像 ＊</label>
+                            <div id="banner-drop-zone" class="drop-zone p-3 rounded-xl text-center cursor-pointer relative" onclick="document.getElementById('banner-file-input').click()">
+                                <input type="file" id="banner-file-input" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'banner')">
+                                <div id="banner-preview-container" class="hidden flex flex-col items-center">
+                                    <img id="banner-preview-img" src="" class="h-24 object-contain rounded-lg shadow-sm mb-1" alt="Preview">
+                                    <span class="text-[10px] text-brand-600 font-bold underline">画像を変更する</span>
+                                </div>
+                                <div id="banner-placeholder" class="py-2">
+                                    <i class="fa-solid fa-cloud-arrow-up text-xl text-gray-400 mb-1"></i>
+                                    <p class="text-xs text-gray-600 font-medium">クリックして画像を選択、またはドラッグ＆ドロップ</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-field">
+                            <label for="banner-add-desc">企画展 説明文</label>
+                            <textarea id="banner-add-desc" rows="2" placeholder="企画展の詳しい説明を入力してください"></textarea>
+                        </div>
+
+                        <!-- Product selection list for promotion -->
+                        <div class="admin-field">
+                            <label>企画展に連動・露出する商品を選択</label>
+                            <div id="banner-product-checkboxes" class="max-h-40 overflow-y-auto border border-gray-200 rounded-xl p-3 bg-white space-y-2">
+                                <!-- Dynamic JS rendering -->
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-1">
+                            <button type="submit" class="px-4 py-2 bg-brand-800 hover:bg-brand-900 text-white rounded-lg text-xs font-bold transition shadow-sm">
+                                バナーを追加する
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="mb-2 flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">登録済みメインバナー一覧</h4>
+                </div>
+                <div id="admin-banners-list-container" class="max-h-60 overflow-y-auto space-y-3 pr-1"></div>
             </div>
 
         </div>
@@ -490,45 +572,56 @@ body {
     </footer>
 
     <script>
-// DATA LAYER (기본 카테고리 삭제 처리완료)
-const BASE_CATEGORIES = [];
+// DEFAULT DEFAULT BANNERS
+const DEFAULT_BANNERS = [
+    {
+        id: 'default-banner-1',
+        title: 'ふんわり軽くて優しい質感。\n釜山・国際市場のヌビバッグ専門店',
+        subTitle: '日韓夫婦 • Gukje Market',
+        desc: '韓国伝統のキルティング生地「ヌビ（イブル）」を使用したハンドメイドバッグと、厳選された人気韓国コスメを取り扱っております。',
+        img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=1200',
+        productIds: []
+    }
+];
 
 const STORAGE_KEYS = {
     categories: 'busanNubi_customCategories',
-    products: 'busanNubi_customProducts'
+    products: 'busanNubi_customProducts',
+    banners: 'busanNubi_customBanners'
 };
 
 function loadCustomCategories() {
-    try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || [];
-    } catch (e) { return []; }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || []; } catch (e) { return []; }
 }
 function saveCustomCategories(list) {
     try { localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list)); } catch (e) {}
 }
 function loadCustomProducts() {
-    try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || [];
-    } catch (e) { return []; }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || []; } catch (e) { return []; }
 }
 function saveCustomProducts(list) {
     try { localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list)); } catch (e) {}
 }
+function loadCustomBanners() {
+    try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.banners));
+        return (stored && stored.length > 0) ? stored : DEFAULT_BANNERS;
+    } catch (e) { return DEFAULT_BANNERS; }
+}
+function saveCustomBanners(list) {
+    try { localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(list)); } catch (e) {}
+}
 
 let categories = [];
+let banners = [];
+let currentBannerIndex = 0;
+let bannerTimer = null;
 
 function buildCategories() {
     const customCategories = loadCustomCategories();
     const customProducts = loadCustomProducts();
 
-    const merged = BASE_CATEGORIES.map(cat => ({
-        ...cat,
-        items: [...cat.items]
-    }));
-
-    customCategories.forEach(cat => {
-        merged.push({ ...cat, items: [] });
-    });
+    const merged = customCategories.map(cat => ({ ...cat, items: [] }));
 
     customProducts.forEach(product => {
         const target = merged.find(c => c.id === product.categoryId);
@@ -549,9 +642,129 @@ window.onload = function () {
     if (typeof initAdminMode === 'function') initAdminMode();
     buildCategories();
     renderCategories();
+    banners = loadCustomBanners();
+    renderBanners();
+    startBannerTimer();
     if (typeof populateAdminCategoryOptions === 'function') populateAdminCategoryOptions();
     setupDragAndDrop();
 };
+
+// BANNER SLIDER LOGIC
+function renderBanners() {
+    const slider = document.getElementById('banner-slider');
+    const dots = document.getElementById('banner-dots');
+    slider.innerHTML = '';
+    dots.innerHTML = '';
+
+    if (banners.length === 0) {
+        banners = DEFAULT_BANNERS;
+    }
+
+    if (currentBannerIndex >= banners.length) currentBannerIndex = 0;
+
+    banners.forEach((b, idx) => {
+        const item = document.createElement('div');
+        item.className = `absolute inset-0 transition-opacity duration-700 flex items-center justify-between p-6 sm:p-12 cursor-pointer ${idx === currentBannerIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`;
+        item.onclick = () => openEventPage(b.id);
+
+        item.innerHTML = `
+            <div class="relative z-10 max-w-xl">
+                <span class="text-xs font-bold tracking-widest text-brand-600 uppercase bg-brand-100 px-3 py-1 rounded-full">${b.subTitle || 'Gukje Market'}</span>
+                <h1 class="text-xl sm:text-3xl font-bold text-gray-900 mt-3 leading-tight whitespace-pre-line">${b.title}</h1>
+                <p class="mt-2 text-xs sm:text-sm text-gray-600 leading-relaxed line-clamp-2">${b.desc}</p>
+                <div class="mt-4 flex items-center text-xs font-bold text-brand-800">
+                    <span>企画展を見る</span> <i class="fa-solid fa-arrow-right ml-1"></i>
+                </div>
+            </div>
+            <div class="absolute right-0 top-0 bottom-0 w-1/2 sm:w-2/5 overflow-hidden">
+                <img src="${b.img}" class="w-full h-full object-cover opacity-90" alt="Banner">
+                <div class="absolute inset-0 bg-gradient-to-r from-white via-white/60 to-transparent"></div>
+            </div>
+        `;
+        slider.appendChild(item);
+
+        // Dots
+        const dot = document.createElement('button');
+        dot.className = `w-2.5 h-2.5 rounded-full transition-all ${idx === currentBannerIndex ? 'bg-brand-800 w-6' : 'bg-gray-300'}`;
+        dot.onclick = () => goToBanner(idx);
+        dots.appendChild(dot);
+    });
+}
+
+function startBannerTimer() {
+    clearInterval(bannerTimer);
+    bannerTimer = setInterval(() => {
+        nextBanner();
+    }, 5000); // 롤링 시간: 5초
+}
+
+function nextBanner() {
+    if (banners.length <= 1) return;
+    currentBannerIndex = (currentBannerIndex + 1) % banners.length;
+    renderBanners();
+}
+
+function prevBanner() {
+    if (banners.length <= 1) return;
+    currentBannerIndex = (currentBannerIndex - 1 + banners.length) % banners.length;
+    renderBanners();
+}
+
+function goToBanner(idx) {
+    currentBannerIndex = idx;
+    renderBanners();
+    startBannerTimer();
+}
+
+// EVENT PAGE DISPLAY
+function openEventPage(bannerId) {
+    const banner = banners.find(b => b.id === bannerId);
+    if (!banner) return;
+
+    document.getElementById('event-detail-title').innerText = banner.title;
+    document.getElementById('event-detail-desc').innerText = banner.desc;
+    document.getElementById('event-tag').innerText = banner.subTitle || 'SPECIAL EVENT';
+    document.getElementById('event-bg-image').style.backgroundImage = `url('${banner.img}')`;
+
+    const grid = document.getElementById('event-items-grid');
+    grid.innerHTML = '';
+
+    const allProducts = loadCustomProducts();
+    const eventProducts = allProducts.filter(p => banner.productIds && banner.productIds.includes(p.id));
+
+    if (eventProducts.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-xs">現在、この企画展に登録されている商品はありません。</div>`;
+    } else {
+        eventProducts.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm card-hover cursor-pointer flex flex-col justify-between';
+            card.onclick = () => openProductModal(item);
+
+            card.innerHTML = `
+                <div>
+                    <div class="h-48 overflow-hidden bg-gray-100 relative">
+                        <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover">
+                        <span class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded-md text-gray-700 shadow-sm">
+                            ${item.color}
+                        </span>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="text-sm font-bold text-gray-900">${item.title}</h4>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.desc}</p>
+                    </div>
+                </div>
+                <div class="p-4 pt-0">
+                    <div class="flex items-center justify-end mt-2 pt-3 border-t border-gray-100">
+                        <span class="text-[11px] bg-brand-50 text-brand-800 px-3 py-1.5 rounded-lg font-medium hover:bg-brand-100 transition">詳細を見る</span>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    showView('event-detail');
+}
 
 function renderCategories() {
     const grid = document.getElementById('category-grid');
@@ -560,7 +773,7 @@ function renderCategories() {
     if (categories.length === 0) {
         grid.innerHTML = `
             <div class="col-span-full text-center py-12 text-gray-400 text-xs">
-                現在登録されているカテゴリーはありません。「商品・カテゴリ管理」から追加してください。
+                現在登録されているカテゴリーはありません。「관리 모드」から追加してください。
             </div>
         `;
         return;
@@ -618,11 +831,7 @@ function renderCategoryItems() {
     document.getElementById('item-count').innerText = filteredItems.length;
 
     if (filteredItems.length === 0) {
-        grid.innerHTML = `
-            <div class="col-span-full text-center py-12 text-gray-400 text-xs">
-                該当する商品がありません。
-            </div>
-        `;
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-xs">該当する商品がありません。</div>`;
         return;
     }
 
@@ -666,17 +875,23 @@ function filterColor(color) {
 
 function showView(viewName) {
     const homeView = document.getElementById('view-home');
-    const heroBanner = document.getElementById('hero-banner');
+    const heroBannerContainer = document.getElementById('hero-banner-container');
     const categoryDetailView = document.getElementById('view-category-detail');
+    const eventDetailView = document.getElementById('view-event-detail');
+
+    homeView.classList.add('hidden');
+    categoryDetailView.classList.add('hidden');
+    eventDetailView.classList.add('hidden');
 
     if (viewName === 'home') {
         homeView.classList.remove('hidden');
-        heroBanner.classList.remove('hidden');
-        categoryDetailView.classList.add('hidden');
-    } else {
-        homeView.classList.add('hidden');
-        heroBanner.classList.add('hidden');
+        heroBannerContainer.classList.remove('hidden');
+    } else if (viewName === 'category-detail') {
+        heroBannerContainer.classList.add('hidden');
         categoryDetailView.classList.remove('hidden');
+    } else if (viewName === 'event-detail') {
+        heroBannerContainer.classList.add('hidden');
+        eventDetailView.classList.remove('hidden');
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -737,6 +952,7 @@ function setupDragAndDrop() {
 
     setupZone('prod-drop-zone', 'prod-file-input', 'prod');
     setupZone('cat-drop-zone', 'cat-file-input', 'cat');
+    setupZone('banner-drop-zone', 'banner-file-input', 'banner');
 }
 
 function preventDefaults(e) {
@@ -764,7 +980,7 @@ function processFile(file, type) {
             const canvas = document.createElement('canvas');
             let width = img.width;
             let height = img.height;
-            const max_size = 800;
+            const max_size = 1200;
 
             if (width > height) {
                 if (width > max_size) {
@@ -802,6 +1018,11 @@ function setPreviewImage(dataUrl, type) {
         document.getElementById('cat-preview-img').src = dataUrl;
         document.getElementById('cat-preview-container').classList.remove('hidden');
         document.getElementById('cat-placeholder').classList.add('hidden');
+    } else if (type === 'banner') {
+        document.getElementById('banner-add-img').value = dataUrl;
+        document.getElementById('banner-preview-img').src = dataUrl;
+        document.getElementById('banner-preview-container').classList.remove('hidden');
+        document.getElementById('banner-placeholder').classList.add('hidden');
     }
 }
 
@@ -816,11 +1037,16 @@ function clearPreviewImage(type) {
         document.getElementById('cat-preview-img').src = '';
         document.getElementById('cat-preview-container').classList.add('hidden');
         document.getElementById('cat-placeholder').classList.remove('hidden');
+    } else if (type === 'banner') {
+        document.getElementById('banner-add-img').value = '';
+        document.getElementById('banner-preview-img').src = '';
+        document.getElementById('banner-preview-container').classList.add('hidden');
+        document.getElementById('banner-placeholder').classList.remove('hidden');
     }
 }
 
 
-// ADMIN, EDIT/DELETE & CATEGORY MANAGEMENT
+// ADMIN MANAGEMENT & TABS
 const NEW_CATEGORY_VALUE = '__new__';
 const ADMIN_SECRET = 'nubi2026admin';
 const ADMIN_FLAG_KEY = 'busanNubi_isAdmin';
@@ -856,30 +1082,39 @@ function switchAdminTab(tabName) {
     const formTab = document.getElementById('admin-tab-form');
     const listTab = document.getElementById('admin-tab-list');
     const catTab = document.getElementById('admin-tab-cat');
+    const bannerTab = document.getElementById('admin-tab-banner');
 
     const formBtn = document.getElementById('admin-tab-form-btn');
     const listBtn = document.getElementById('admin-tab-list-btn');
     const catBtn = document.getElementById('admin-tab-cat-btn');
+    const bannerBtn = document.getElementById('admin-tab-banner-btn');
 
     formTab.classList.add('hidden');
     listTab.classList.add('hidden');
     catTab.classList.add('hidden');
+    bannerTab.classList.add('hidden');
 
-    formBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition';
-    listBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition';
-    catBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition';
+    formBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition whitespace-nowrap';
+    listBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition whitespace-nowrap';
+    catBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition whitespace-nowrap';
+    bannerBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition whitespace-nowrap';
 
     if (tabName === 'form') {
         formTab.classList.remove('hidden');
-        formBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition';
+        formBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition whitespace-nowrap';
     } else if (tabName === 'list') {
         listTab.classList.remove('hidden');
-        listBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition';
+        listBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition whitespace-nowrap';
         renderAdminProductsList();
     } else if (tabName === 'cat') {
         catTab.classList.remove('hidden');
-        catBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition';
+        catBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition whitespace-nowrap';
         renderAdminCategoriesList();
+    } else if (tabName === 'banner') {
+        bannerTab.classList.remove('hidden');
+        bannerBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition whitespace-nowrap';
+        renderAdminBannersList();
+        populateBannerProductCheckboxes();
     }
 }
 
@@ -1044,6 +1279,68 @@ function handleAdminFormSubmit(event) {
     closeAdminModal();
 }
 
+// BANNER FORM SUBMIT
+function handleBannerFormSubmit(event) {
+    event.preventDefault();
+
+    const title = document.getElementById('banner-add-title').value.trim();
+    const subtitle = document.getElementById('banner-add-subtitle').value.trim();
+    const img = document.getElementById('banner-add-img').value;
+    const desc = document.getElementById('banner-add-desc').value.trim();
+
+    if (!title || !img) {
+        showToast('バナータイトルと画像を選択してください');
+        return;
+    }
+
+    const checkboxes = document.querySelectorAll('.banner-prod-checkbox:checked');
+    const selectedProductIds = Array.from(checkboxes).map(cb => cb.value);
+
+    const newBanner = {
+        id: 'banner-custom-' + Date.now().toString(36),
+        title: title,
+        subTitle: subtitle || 'Gukje Market',
+        desc: desc || title,
+        img: img,
+        productIds: selectedProductIds
+    };
+
+    let customBanners = loadCustomBanners();
+    customBanners.push(newBanner);
+    saveCustomBanners(customBanners);
+
+    banners = customBanners;
+    renderBanners();
+    renderAdminBannersList();
+
+    document.getElementById('admin-banner-form').reset();
+    clearPreviewImage('banner');
+    showToast('新しいメインバナーを追加しました ✓');
+}
+
+function populateBannerProductCheckboxes() {
+    const container = document.getElementById('banner-product-checkboxes');
+    container.innerHTML = '';
+
+    const allProducts = loadCustomProducts();
+
+    if (allProducts.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-400">登録されている商品がありません。先に商品を登録してください。</p>`;
+        return;
+    }
+
+    allProducts.forEach(prod => {
+        const item = document.createElement('label');
+        item.className = 'flex items-center space-x-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded-lg';
+        item.innerHTML = `
+            <input type="checkbox" value="${prod.id}" class="banner-prod-checkbox rounded text-brand-800 focus:ring-brand-500">
+            <img src="${prod.img}" class="w-6 h-6 object-cover rounded" alt="">
+            <span class="truncate">${prod.title} (${prod.color})</span>
+        `;
+        container.appendChild(item);
+    });
+}
+
 function renderAdminProductsList() {
     const container = document.getElementById('admin-products-list-container');
     container.innerHTML = '';
@@ -1105,6 +1402,39 @@ function renderAdminCategoriesList() {
             </div>
             <div class="flex items-center space-x-1 flex-shrink-0">
                 <button onclick="deleteCategory('${cat.id}')" class="px-2.5 py-1 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-lg transition">
+                    <i class="fa-solid fa-trash"></i> 削除
+                </button>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+function renderAdminBannersList() {
+    const container = document.getElementById('admin-banners-list-container');
+    container.innerHTML = '';
+
+    const customBanners = loadCustomBanners();
+
+    if (customBanners.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">登録されたバナーはありません。</p>`;
+        return;
+    }
+
+    customBanners.forEach(b => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs';
+
+        item.innerHTML = `
+            <div class="flex items-center space-x-3 overflow-hidden pr-2">
+                <img src="${b.img}" class="w-12 h-10 object-cover rounded-lg flex-shrink-0" alt="">
+                <div class="truncate">
+                    <p class="font-bold text-gray-800 truncate">${b.title}</p>
+                    <p class="text-[10px] text-gray-400 truncate">連動商品: ${b.productIds ? b.productIds.length : 0}件</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-1 flex-shrink-0">
+                <button onclick="deleteBanner('${b.id}')" class="px-2.5 py-1 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-lg transition">
                     <i class="fa-solid fa-trash"></i> 削除
                 </button>
             </div>
@@ -1175,12 +1505,29 @@ function deleteCategory(categoryId) {
     showToast('カテゴリーを削除しました');
 }
 
+function deleteBanner(bannerId) {
+    if (!confirm('このバナーを削除してもよろしいですか？')) return;
+
+    let customBanners = loadCustomBanners();
+    customBanners = customBanners.filter(b => b.id !== bannerId);
+    saveCustomBanners(customBanners);
+
+    banners = customBanners;
+    renderBanners();
+    renderAdminBannersList();
+
+    showToast('バナーを削除しました');
+}
+
 function resetCustomProducts() {
     if (!confirm('登録したすべてのデータを削除します。よろしいですか？')) return;
     localStorage.removeItem(STORAGE_KEYS.categories);
     localStorage.removeItem(STORAGE_KEYS.products);
+    localStorage.removeItem(STORAGE_KEYS.banners);
     buildCategories();
     renderCategories();
+    banners = DEFAULT_BANNERS;
+    renderBanners();
     populateAdminCategoryOptions();
     closeAdminModal();
     showToast('登録データをリセットしました');
