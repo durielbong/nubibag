@@ -882,19 +882,14 @@ function renderCategoryItems() {
                 </div>
             </div>
             <div class="p-4 pt-0">
-                <div class="flex items-baseline justify-between mt-2 pt-3 border-t border-gray-100">
-                    <div>
-                        <span class="text-base font-bold text-brand-800">￥${Number(item.priceJpy).toLocaleString()}</span>
-                        <span class="text-[10px] text-gray-400 block">(${Number(item.priceKrw).toLocaleString()} KRW)</span>
-                    </div>
-                    <span class="text-[11px] bg-brand-50 text-brand-800 px-2 py-1 rounded font-medium">詳細</span>
+                <div class="flex items-center justify-end mt-2 pt-3 border-t border-gray-100">
+                    <span class="text-[11px] bg-brand-50 text-brand-800 px-3 py-1.5 rounded-lg font-medium hover:bg-brand-100 transition">詳細を見る</span>
                 </div>
             </div>
         `;
         grid.appendChild(card);
     });
 }
-
 // ------------------------------------------------------------
 // Color Filter Handler
 // ------------------------------------------------------------
@@ -943,16 +938,10 @@ function openProductModal(item) {
     document.getElementById('modal-product-image').src = item.img;
     document.getElementById('modal-product-category').innerText = activeCategory ? activeCategory.title : 'NUBI BAG';
     document.getElementById('modal-product-title').innerText = item.title;
-    document.getElementById('modal-product-price-jpy').innerText = `￥${Number(item.priceJpy).toLocaleString()}`;
-    document.getElementById('modal-product-price-krw').innerText = `(${Number(item.priceKrw).toLocaleString()} KRW)`;
     document.getElementById('modal-product-desc').innerText = item.desc;
     document.getElementById('modal-product-size').innerText = item.size;
 
     document.getElementById('product-modal').classList.remove('hidden');
-}
-
-function closeProductModal() {
-    document.getElementById('product-modal').classList.add('hidden');
 }
 
 // ------------------------------------------------------------
