@@ -618,7 +618,7 @@ body {
     </footer>
 
     <script>
-// 기본 공개용 카테고리 데이터
+// 기본 공개용 카테고리 시드 데이터
 const DEFAULT_CATEGORIES = [
     {
         id: 'cat-s-size',
@@ -654,7 +654,7 @@ const DEFAULT_CATEGORIES = [
     }
 ];
 
-// 기본 상품 데이터
+// 기본 상품 시드 데이터
 const DEFAULT_PRODUCTS = [
     {
         id: 'prod-s-1',
@@ -677,7 +677,7 @@ const DEFAULT_PRODUCTS = [
     {
         id: 'prod-cosme-1',
         categoryId: 'cat-cosmetics',
-        title: 'アロセル (AROCELL) スキンケアセット',
+        title: 'アロセル (AROCELL) ススキンケアセット',
         color: 'アイボリー',
         size: 'Standard Box',
         desc: 'お肌にうるおいを与えるプレミアムスキンケア。釜山実店舗でも大人気の商品です。',
@@ -685,7 +685,7 @@ const DEFAULT_PRODUCTS = [
     }
 ];
 
-// 기본 배ナー 데이터
+// 기본 배ナー 시드 데이터
 const DEFAULT_BANNERS = [
     {
         id: 'default-banner-1',
@@ -703,13 +703,15 @@ const STORAGE_KEYS = {
     banners: 'busanNubi_customBanners'
 };
 
+// [수정] 최초 접속 시에만 시드 데이터를 저장하고, 이후부터는 LocalStorage 데이터를 단독 유지
 function loadCustomCategories() {
     try { 
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || []; 
-        const map = new Map();
-        DEFAULT_CATEGORIES.forEach(cat => map.set(cat.id, cat));
-        stored.forEach(cat => map.set(cat.id, cat));
-        return Array.from(map.values());
+        const raw = localStorage.getItem(STORAGE_KEYS.categories);
+        if (raw === null) {
+            localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(DEFAULT_CATEGORIES));
+            return [...DEFAULT_CATEGORIES];
+        }
+        return JSON.parse(raw) || [];
     } catch (e) { return DEFAULT_CATEGORIES; }
 }
 
@@ -719,11 +721,12 @@ function saveCustomCategories(list) {
 
 function loadCustomProducts() {
     try { 
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || []; 
-        const map = new Map();
-        DEFAULT_PRODUCTS.forEach(prod => map.set(prod.id, prod));
-        stored.forEach(prod => map.set(prod.id, prod));
-        return Array.from(map.values());
+        const raw = localStorage.getItem(STORAGE_KEYS.products);
+        if (raw === null) {
+            localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(DEFAULT_PRODUCTS));
+            return [...DEFAULT_PRODUCTS];
+        }
+        return JSON.parse(raw) || [];
     } catch (e) { return DEFAULT_PRODUCTS; }
 }
 
@@ -733,11 +736,12 @@ function saveCustomProducts(list) {
 
 function loadCustomBanners() {
     try {
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.banners)) || [];
-        const map = new Map();
-        DEFAULT_BANNERS.forEach(banner => map.set(banner.id, banner));
-        stored.forEach(banner => map.set(banner.id, banner));
-        return Array.from(map.values());
+        const raw = localStorage.getItem(STORAGE_KEYS.banners);
+        if (raw === null) {
+            localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(DEFAULT_BANNERS));
+            return [...DEFAULT_BANNERS];
+        }
+        return JSON.parse(raw) || [];
     } catch (e) { return DEFAULT_BANNERS; }
 }
 
@@ -1513,7 +1517,6 @@ function startEditBanner(bannerId) {
     populateBannerProductCheckboxes();
 }
 
-// CATEGORY DROPDOWN FOR BANNER PROMOTIONS
 function populateBannerCategoryFilter() {
     const select = document.getElementById('banner-cat-filter');
     if (!select) return;
@@ -1571,7 +1574,6 @@ function populateBannerProductCheckboxes() {
     });
 }
 
-// [신규] 관리자 상품 목록용 카테고리 필터 셀렉트박스 동기화
 function populateAdminListCategoryFilter() {
     const select = document.getElementById('admin-list-category-filter');
     if (!select) return;
@@ -1588,7 +1590,6 @@ function populateAdminListCategoryFilter() {
     select.value = currentVal;
 }
 
-// [수정] 카테고리 필터링이 적용된 상품 목록 렌더링
 function renderAdminProductsList() {
     populateAdminListCategoryFilter();
     const container = document.getElementById('admin-products-list-container');
@@ -1640,7 +1641,7 @@ function renderAdminCategoriesList() {
     const customCategories = loadCustomCategories();
 
     if (customCategories.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">追加されたカスタムカテゴリーはありません。</p>`;
+        container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">登録されたカテゴリーはありません。</p>`;
         return;
     }
 
@@ -1677,6 +1678,7 @@ function renderAdminCategoriesList() {
     });
 }
 
+// [수정] 순서 변경 후 LocalStorage에 즉시 완전 보존
 function moveCategoryOrder(index, direction) {
     let customCategories = loadCustomCategories();
     const targetIndex = index + direction;
@@ -1733,7 +1735,6 @@ function renderAdminBannersList() {
     });
 }
 
-// [수정] 상품 수정 시작 시 카테고리 목록 동기화
 function startEditProduct(productId) {
     const customProducts = loadCustomProducts();
     const prod = customProducts.find(p => p.id === productId);
@@ -1774,16 +1775,20 @@ function deleteProduct(productId) {
     showToast('商品を削除しました');
 }
 
+// [수정] 카테고리 삭제 시 관련 상품 일괄 삭제 처리 연동
 function deleteCategory(categoryId) {
-    const customProducts = loadCustomProducts();
-    const hasProducts = customProducts.some(p => p.categoryId === categoryId);
+    let customProducts = loadCustomProducts();
+    const categoryProducts = customProducts.filter(p => p.categoryId === categoryId);
 
-    if (hasProducts) {
-        alert('このカテゴリーには商品が登録されています。先にカテゴリー内の商品を削除してください。');
-        return;
+    if (categoryProducts.length > 0) {
+        if (!confirm(`このカテゴリーには ${categoryProducts.length}件の商品が登録されています。\nカテゴリーと一緒に登録されている商品も削除しますか？`)) {
+            return;
+        }
+        customProducts = customProducts.filter(p => p.categoryId !== categoryId);
+        saveCustomProducts(customProducts);
+    } else {
+        if (!confirm('このカテゴリーを削除してもよろしいですか？')) return;
     }
-
-    if (!confirm('このカテゴリーを削除してもよろしいですか？')) return;
 
     let customCategories = loadCustomCategories();
     customCategories = customCategories.filter(c => c.id !== categoryId);
@@ -1793,6 +1798,7 @@ function deleteCategory(categoryId) {
     renderCategories();
     populateAdminCategoryOptions();
     renderAdminCategoriesList();
+    renderAdminProductsList();
 
     showToast('カテゴリーを削除しました');
 }
@@ -1812,15 +1818,16 @@ function deleteBanner(bannerId) {
 }
 
 function resetCustomProducts() {
-    if (!confirm('登録したすべてのデータを削除します。よろしいですか？')) return;
+    if (!confirm('登録したすべてのデータを削除し、初期状態にリセットします。よろしいですか？')) return;
     localStorage.removeItem(STORAGE_KEYS.categories);
     localStorage.removeItem(STORAGE_KEYS.products);
     localStorage.removeItem(STORAGE_KEYS.banners);
     localStorage.removeItem('busanNubi_categories');
     localStorage.removeItem('busanNubi_products');
+    
     buildCategories();
     renderCategories();
-    banners = DEFAULT_BANNERS;
+    banners = loadCustomBanners();
     renderBanners();
     populateAdminCategoryOptions();
     closeAdminModal();
