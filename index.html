@@ -104,6 +104,17 @@ body {
     box-shadow: 0 0 0 3px rgba(197, 155, 109, 0.15);
 }
 
+/* Drag and Drop Zone Style */
+.drop-zone {
+    border: 2px dashed #cbd5e1;
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+}
+.drop-zone.dragover {
+    border-color: #c59b6d;
+    background-color: #fdfbf7;
+}
+
 #toast {
     position: fixed;
     left: 50%;
@@ -332,6 +343,7 @@ body {
 
                 <form id="admin-form" onsubmit="handleAdminFormSubmit(event)" class="space-y-4">
                     <input type="hidden" id="admin-editing-product-id" value="">
+                    <input type="hidden" id="admin-product-img" value="">
 
                     <div class="admin-field">
                         <label for="admin-category-select">カテゴリー ＊</label>
@@ -369,9 +381,21 @@ body {
                         <input type="text" id="admin-product-size" placeholder="例：W28cm x H20cm x D10cm" required>
                     </div>
 
+                    <!-- Drag & Drop Product Image Upload Area -->
                     <div class="admin-field">
-                        <label for="admin-product-img">商品画像URL ＊</label>
-                        <input type="url" id="admin-product-img" placeholder="https://..." required>
+                        <label>商品画像 ＊</label>
+                        <div id="prod-drop-zone" class="drop-zone p-4 rounded-xl text-center cursor-pointer relative" onclick="document.getElementById('prod-file-input').click()">
+                            <input type="file" id="prod-file-input" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'prod')">
+                            <div id="prod-preview-container" class="hidden flex flex-col items-center">
+                                <img id="prod-preview-img" src="" class="h-32 object-contain rounded-lg shadow-sm mb-2" alt="Preview">
+                                <span class="text-[11px] text-brand-600 font-bold underline">画像を変更する</span>
+                            </div>
+                            <div id="prod-placeholder" class="py-4">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-400 mb-2"></i>
+                                <p class="text-xs text-gray-600 font-medium">クリックして画像を選択、またはドラッグ＆ド롭</p>
+                                <p class="text-[10px] text-gray-400 mt-1">PNG, JPG, WEBP 対応</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="admin-field">
@@ -410,6 +434,8 @@ body {
                 <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6">
                     <h4 class="text-xs font-bold text-brand-800 uppercase tracking-wider mb-3"><i class="fa-solid fa-plus-circle mr-1"></i> 新しいカテゴリーを登録</h4>
                     <form id="admin-cat-form" onsubmit="handleCategoryFormSubmit(event)" class="space-y-3">
+                        <input type="hidden" id="cat-add-img" value="">
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div class="admin-field">
                                 <label for="cat-add-title">カテゴリー名 ＊</label>
@@ -420,10 +446,23 @@ body {
                                 <input type="text" id="cat-add-subtitle" placeholder="例：Pouch & Goods">
                             </div>
                         </div>
+
+                        <!-- Drag & Drop Category Image Upload Area -->
                         <div class="admin-field">
-                            <label for="cat-add-img">代表画像URL ＊</label>
-                            <input type="url" id="cat-add-img" placeholder="https://..." required>
+                            <label>代表画像 ＊</label>
+                            <div id="cat-drop-zone" class="drop-zone p-3 rounded-xl text-center cursor-pointer relative" onclick="document.getElementById('cat-file-input').click()">
+                                <input type="file" id="cat-file-input" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'cat')">
+                                <div id="cat-preview-container" class="hidden flex flex-col items-center">
+                                    <img id="cat-preview-img" src="" class="h-24 object-contain rounded-lg shadow-sm mb-1" alt="Preview">
+                                    <span class="text-[10px] text-brand-600 font-bold underline">画像を変更する</span>
+                                </div>
+                                <div id="cat-placeholder" class="py-2">
+                                    <i class="fa-solid fa-cloud-arrow-up text-xl text-gray-400 mb-1"></i>
+                                    <p class="text-xs text-gray-600 font-medium">クリックして画像を選択、またはドラッグ＆ドロップ</p>
+                                </div>
+                            </div>
                         </div>
+
                         <div class="admin-field">
                             <label for="cat-add-desc">説明</label>
                             <input type="text" id="cat-add-desc" placeholder="カテゴリーの簡潔な説明">
@@ -562,6 +601,7 @@ window.onload = function () {
     buildCategories();
     renderCategories();
     if (typeof populateAdminCategoryOptions === 'function') populateAdminCategoryOptions();
+    setupDragAndDrop();
 };
 
 function renderCategories() {
@@ -701,6 +741,119 @@ function openStoreModal() { document.getElementById('store-modal').classList.rem
 function closeStoreModal() { document.getElementById('store-modal').classList.add('hidden'); }
 
 
+// DRAG & DROP FILE UPLOAD HELPER FUNCTIONS
+function setupDragAndDrop() {
+    const setupZone = (zoneId, inputId, type) => {
+        const zone = document.getElementById(zoneId);
+        if (!zone) return;
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            zone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            zone.addEventListener(eventName, () => zone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            zone.addEventListener(eventName, () => zone.classList.remove('dragover'), false);
+        });
+
+        zone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files[0]) {
+                processFile(files[0], type);
+            }
+        }, false);
+    };
+
+    setupZone('prod-drop-zone', 'prod-file-input', 'prod');
+    setupZone('cat-drop-zone', 'cat-file-input', 'cat');
+}
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function handleFileSelect(e, type) {
+    const files = e.target.files;
+    if (files && files[0]) {
+        processFile(files[0], type);
+    }
+}
+
+// 이미지 리사이징 및 Base64 변환 (localStorage 용량 최적화)
+function processFile(file, type) {
+    if (!file.type.match('image.*')) {
+        showToast('画像ファイルを選択してください');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const max_size = 800; // 최대 해상도 제한
+
+            if (width > height) {
+                if (width > max_size) {
+                    height *= max_size / width;
+                    width = max_size;
+                }
+            } else {
+                if (height > max_size) {
+                    width *= max_size / height;
+                    height = max_size;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85); // 85% 품질 압축
+            setPreviewImage(dataUrl, type);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function setPreviewImage(dataUrl, type) {
+    if (type === 'prod') {
+        document.getElementById('admin-product-img').value = dataUrl;
+        document.getElementById('prod-preview-img').src = dataUrl;
+        document.getElementById('prod-preview-container').classList.remove('hidden');
+        document.getElementById('prod-placeholder').classList.add('hidden');
+    } else if (type === 'cat') {
+        document.getElementById('cat-add-img').value = dataUrl;
+        document.getElementById('cat-preview-img').src = dataUrl;
+        document.getElementById('cat-preview-container').classList.remove('hidden');
+        document.getElementById('cat-placeholder').classList.add('hidden');
+    }
+}
+
+function clearPreviewImage(type) {
+    if (type === 'prod') {
+        document.getElementById('admin-product-img').value = '';
+        document.getElementById('prod-preview-img').src = '';
+        document.getElementById('prod-preview-container').classList.add('hidden');
+        document.getElementById('prod-placeholder').classList.remove('hidden');
+    } else if (type === 'cat') {
+        document.getElementById('cat-add-img').value = '';
+        document.getElementById('cat-preview-img').src = '';
+        document.getElementById('cat-preview-container').classList.add('hidden');
+        document.getElementById('cat-placeholder').classList.remove('hidden');
+    }
+}
+
+
 // ADMIN, EDIT/DELETE & CATEGORY MANAGEMENT
 const NEW_CATEGORY_VALUE = '__new__';
 const ADMIN_SECRET = 'nubi2026admin';
@@ -797,20 +950,20 @@ function resetAdminForm() {
     document.getElementById('admin-editing-product-id').value = '';
     document.getElementById('admin-form-heading').innerText = '新しい商品を登録';
     document.getElementById('admin-submit-btn').innerText = '登録する';
+    clearPreviewImage('prod');
     toggleNewCategoryFields();
 }
 
-// 独立したカテゴリー登録フォームの送信処理
 function handleCategoryFormSubmit(event) {
     event.preventDefault();
 
     const title = document.getElementById('cat-add-title').value.trim();
     const subtitle = document.getElementById('cat-add-subtitle').value.trim();
-    const img = document.getElementById('cat-add-img').value.trim();
+    const img = document.getElementById('cat-add-img').value;
     const desc = document.getElementById('cat-add-desc').value.trim();
 
     if (!title || !img) {
-        showToast('必須項目を入力してください');
+        showToast('カテゴリー名と画像を選択してください');
         return;
     }
 
@@ -833,6 +986,7 @@ function handleCategoryFormSubmit(event) {
     renderAdminCategoriesList();
 
     document.getElementById('admin-cat-form').reset();
+    clearPreviewImage('cat');
     showToast('新しいカテゴリーを登録しました ✓');
 }
 
@@ -842,6 +996,12 @@ function handleAdminFormSubmit(event) {
     const editingId = document.getElementById('admin-editing-product-id').value;
     const categorySelect = document.getElementById('admin-category-select');
     let categoryId = categorySelect.value;
+    const img = document.getElementById('admin-product-img').value;
+
+    if (!img) {
+        showToast('商品画像を登録してください');
+        return;
+    }
 
     if (categoryId === NEW_CATEGORY_VALUE) {
         const newTitle = document.getElementById('admin-new-category-title').value.trim();
@@ -856,7 +1016,7 @@ function handleAdminFormSubmit(event) {
             subTitle: document.getElementById('admin-new-category-subtitle').value.trim(),
             desc: document.getElementById('admin-new-category-desc').value.trim() || newTitle,
             tag: '日韓夫婦',
-            mainImg: document.getElementById('admin-product-img').value.trim() || 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7'
+            mainImg: img
         };
 
         const customCategories = loadCustomCategories();
@@ -869,9 +1029,8 @@ function handleAdminFormSubmit(event) {
     const color = document.getElementById('admin-product-color').value.trim();
     const desc = document.getElementById('admin-product-desc').value.trim();
     const size = document.getElementById('admin-product-size').value.trim();
-    const img = document.getElementById('admin-product-img').value.trim();
 
-    if (!title || !color || !img || !desc || !size) {
+    if (!title || !color || !desc || !size) {
         showToast('必須項目（＊）をすべて入力してください');
         return;
     }
@@ -1000,8 +1159,9 @@ function startEditProduct(productId) {
     document.getElementById('admin-product-title').value = prod.title;
     document.getElementById('admin-product-color').value = prod.color;
     document.getElementById('admin-product-size').value = prod.size;
-    document.getElementById('admin-product-img').value = prod.img;
     document.getElementById('admin-product-desc').value = prod.desc;
+
+    setPreviewImage(prod.img, 'prod');
 
     document.getElementById('admin-form-heading').innerText = '商品を編集';
     document.getElementById('admin-submit-btn').innerText = '更新する';
