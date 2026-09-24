@@ -27,12 +27,8 @@
                             800: '#5a4228',
                             900: '#2c1e11'
                         },
-                        nubi: {
-                            pink: '#e8c4c4',
-                            beige: '#e2d4c5',
-                            mint: '#b2c8ba',
-                            charcoal: '#4a4a4a'
-                        }
+                        footerBg: '#382e25',
+                        footerGold: '#cfa878'
                     },
                     fontFamily: {
                         sans: ['"Noto Sans JP"', 'sans-serif'],
@@ -213,7 +209,7 @@ body {
                     <p id="category-detail-desc" class="text-sm text-gray-600 mt-2"></p>
                 </div>
                 <button onclick="showView('home')" class="self-start md:self-center px-4 py-2 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm flex items-center">
-                    <i class="fa-solid fa-arrow-left mr-2"></i> カテゴリー一覧へ戻る
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Category List
                 </button>
             </div>
 
@@ -324,9 +320,9 @@ body {
             </div>
             <div class="space-y-4 text-xs sm:text-sm">
                 <div class="bg-gray-50 p-4 rounded-xl space-y-2 border border-gray-100">
-                    <p class="font-bold text-gray-800">釜山広域市 中区 中区路40番길 11 1階 ハンイルブブコスメティック</p>
+                    <p class="font-bold text-gray-800">釜山広域市 中区 新昌洞4街 国際市場</p>
                     <p class="text-gray-600">地下鉄1号線 チャガルチ駅 7番出口 徒歩5分</p>
-                    <p class="text-gray-600">営業時間: 10:00 ~ 19:00 (年中無休)</p>
+                    <p class="text-gray-600">営業時間: 10:00 - 19:00</p>
                 </div>
             </div>
             <div class="mt-6 flex justify-end">
@@ -578,9 +574,42 @@ body {
     <!-- Toast notification -->
     <div id="toast"></div>
 
-    <footer class="bg-brand-900 text-brand-100 border-t border-brand-800 py-10 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
-            <p class="text-xs text-brand-200">&copy; BUSAN NUBI & COSMETICS. All rights reserved.</p>
+    <!-- FOOTER (이미지 영역 원본 디자인 재현) -->
+    <footer class="bg-footerBg text-white py-12 px-6 sm:px-12 mt-16 rounded-t-[2.5rem] sm:rounded-t-[3.5rem]">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 pb-10">
+                <!-- 1. Brand Info -->
+                <div class="space-y-3">
+                    <h3 class="text-base font-bold serif-title text-footerGold tracking-wider">BUSAN NUBI & BEAUTY</h3>
+                    <p class="text-xs text-gray-200 leading-relaxed">
+                        釜山国際市場で丁寧に作られたハンドメイドヌビバッグと、厳選された韓国コスメをお届けします。
+                    </p>
+                </div>
+
+                <!-- 2. Store Info -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-bold text-footerGold tracking-wide">店舗情報</h3>
+                    <div class="text-xs text-gray-200 space-y-1.5 leading-relaxed">
+                        <p>釜山広域市 中区 新昌洞4街 国際市場</p>
+                        <p>営業時間: 10:00 - 19:00</p>
+                    </div>
+                </div>
+
+                <!-- 3. Service -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-bold text-footerGold tracking-wide">サービス</h3>
+                    <ul class="text-xs text-gray-200 space-y-1.5">
+                        <li>• Tax Free (免税対応)</li>
+                        <li>• Handmade in Busan</li>
+                        <li>• 日本語対応可能</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Copyright -->
+            <div class="border-t border-white/10 pt-8 text-center">
+                <p class="text-[11px] text-gray-400 tracking-wider">&copy; BUSAN NUBI & COSMETICS. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
@@ -629,7 +658,7 @@ let categories = [];
 let banners = [];
 let currentBannerIndex = 0;
 let bannerTimer = null;
-let currentlySelectedProductIds = []; // Temporary state for active edit/selection
+let currentlySelectedProductIds = [];
 
 function buildCategories() {
     const customCategories = loadCustomCategories();
@@ -1320,7 +1349,6 @@ function handleBannerFormSubmit(event) {
         return;
     }
 
-    // Collect checked items + retain existing selection state
     const currentCheckboxes = document.querySelectorAll('.banner-prod-checkbox');
     currentCheckboxes.forEach(cb => {
         if (cb.checked) {
@@ -1402,7 +1430,6 @@ function populateBannerCategoryFilter() {
 }
 
 function filterBannerProductsByCategory() {
-    // Keep track of currently checked states before switching category view
     const checkboxes = document.querySelectorAll('.banner-prod-checkbox');
     checkboxes.forEach(cb => {
         if (cb.checked) {
