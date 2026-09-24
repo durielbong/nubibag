@@ -933,19 +933,53 @@ function scrollToProducts() {
     document.getElementById('category-grid').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ------------------------------------------------------------
-// Product Detail Modal
+/// ------------------------------------------------------------
+// Product Detail Modal (오류 방지 및 강제 닫기 적용)
 // ------------------------------------------------------------
 function openProductModal(item) {
-    document.getElementById('modal-product-image').src = item.img;
-    document.getElementById('modal-product-category').innerText = activeCategory ? activeCategory.title : 'NUBI BAG';
-    document.getElementById('modal-product-title').innerText = item.title;
-    document.getElementById('modal-product-desc').innerText = item.desc;
-    document.getElementById('modal-product-size').innerText = item.size;
+    if (!item) return;
 
-    document.getElementById('product-modal').classList.remove('hidden');
+    // 이미지
+    const imgEl = document.getElementById('modal-product-image');
+    if (imgEl) imgEl.src = item.img || '';
+
+    // 카테고리
+    const catEl = document.getElementById('modal-product-category');
+    if (catEl) catEl.innerText = (activeCategory && activeCategory.title) ? activeCategory.title : 'NUBI BAG';
+
+    // 상품명
+    const titleEl = document.getElementById('modal-product-title');
+    if (titleEl) titleEl.innerText = item.title || '';
+
+    // 설명
+    const descEl = document.getElementById('modal-product-desc');
+    if (descEl) descEl.innerText = item.desc || '';
+
+    // 사이즈
+    const sizeEl = document.getElementById('modal-product-size');
+    if (sizeEl) sizeEl.innerText = item.size || '';
+
+    // 모달 표시
+    const modal = document.getElementById('product-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+    }
 }
 
+function closeProductModal() {
+    const modal = document.getElementById('product-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = ''; // 스크롤 원복
+    }
+}
+ <!-- Close Button -->
+<button type="button" 
+        onclick="closeProductModal()" 
+        class="absolute top-4 right-4 z-30 w-10 h-10 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-700 shadow-lg border border-gray-200 transition cursor-pointer">
+    <i class="fa-solid fa-xmark text-xl"></i>
+</button>       
 // ------------------------------------------------------------
 // Store Info Modal
 // ------------------------------------------------------------
