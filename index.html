@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -146,7 +145,7 @@ body {
                 <div class="flex items-center space-x-3">
                     <button id="admin-btn" onclick="openAdminModal()" class="hidden flex items-center space-x-1 bg-brand-800 hover:bg-brand-900 text-white px-3 py-1.5 rounded-full text-xs font-medium transition">
                         <i class="fa-solid fa-gear me-1"></i>
-                        <span>商品管理・登録</span>
+                        <span>商品・カテゴリ管理</span>
                     </button>
                     <button onclick="openStoreModal()" class="flex items-center space-x-1 bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 px-3 py-1.5 rounded-full text-xs font-medium transition">
                         <i class="fa-solid me-1 fa-location-dot text-brand-600"></i>
@@ -305,7 +304,7 @@ body {
         </div>
     </div>
 
-    <!-- MODAL 3: PRODUCT MANAGEMENT / REGISTRATION (ADMIN) -->
+    <!-- MODAL 3: PRODUCT & CATEGORY MANAGEMENT (ADMIN) -->
     <div id="admin-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative fade-in my-8">
             <button onclick="closeAdminModal()" class="absolute top-4 right-4 z-10 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 transition">
@@ -318,11 +317,14 @@ body {
                     <i class="fa-solid fa-pen-to-square mr-1"></i> 商品登録 / 編集
                 </button>
                 <button id="admin-tab-list-btn" onclick="switchAdminTab('list')" class="py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition">
-                    <i class="fa-solid fa-list mr-1"></i> 登録商品一覧・削除
+                    <i class="fa-solid fa-boxes-stacked mr-1"></i> 商品一覧
+                </button>
+                <button id="admin-tab-cat-btn" onclick="switchAdminTab('cat')" class="py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition">
+                    <i class="fa-solid fa-folder-tree mr-1"></i> カテゴリー管理
                 </button>
             </div>
 
-            <!-- TAB 1: FORM (Add / Edit) -->
+            <!-- TAB 1: FORM (Add / Edit Product) -->
             <div id="admin-tab-form">
                 <div class="mb-4">
                     <h3 id="admin-form-heading" class="text-lg font-bold text-gray-900">新しい商品を登録</h3>
@@ -378,11 +380,9 @@ body {
                     </div>
 
                     <div class="flex items-center justify-between pt-2">
-                        <div class="flex items-center gap-3">
-                            <button type="button" onclick="resetCustomProducts()" class="text-[11px] text-gray-400 hover:text-red-500 transition underline">
-                                全データリセット
-                            </button>
-                        </div>
+                        <button type="button" onclick="resetCustomProducts()" class="text-[11px] text-gray-400 hover:text-red-500 transition underline">
+                            全データリセット
+                        </button>
                         <div class="flex gap-2">
                             <button type="button" onclick="closeAdminModal()" class="px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 transition">
                                 キャンセル
@@ -401,9 +401,16 @@ body {
                     <h3 class="text-lg font-bold text-gray-900">登録済み商品一覧</h3>
                     <span class="text-xs text-gray-400">※基本商品は編集できません</span>
                 </div>
-                <div id="admin-products-list-container" class="max-h-80 overflow-y-auto space-y-3 pr-1">
-                    <!-- Dynamic JavaScript Rendering -->
+                <div id="admin-products-list-container" class="max-h-80 overflow-y-auto space-y-3 pr-1"></div>
+            </div>
+
+            <!-- TAB 3: REGISTERED CATEGORIES LIST -->
+            <div id="admin-tab-cat" class="hidden">
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900">登録済みカテゴリー一覧</h3>
+                    <span class="text-xs text-gray-400">※基本カテゴリーは削除できません</span>
                 </div>
+                <div id="admin-categories-list-container" class="max-h-80 overflow-y-auto space-y-3 pr-1"></div>
             </div>
 
         </div>
@@ -663,7 +670,7 @@ function openStoreModal() { document.getElementById('store-modal').classList.rem
 function closeStoreModal() { document.getElementById('store-modal').classList.add('hidden'); }
 
 
-// ADMIN & EDIT / DELETE FUNCTIONS
+// ADMIN, EDIT/DELETE & CATEGORY MANAGEMENT
 const NEW_CATEGORY_VALUE = '__new__';
 const ADMIN_SECRET = 'nubi2026admin';
 const ADMIN_FLAG_KEY = 'busanNubi_isAdmin';
@@ -698,20 +705,31 @@ function closeAdminModal() {
 function switchAdminTab(tabName) {
     const formTab = document.getElementById('admin-tab-form');
     const listTab = document.getElementById('admin-tab-list');
+    const catTab = document.getElementById('admin-tab-cat');
+
     const formBtn = document.getElementById('admin-tab-form-btn');
     const listBtn = document.getElementById('admin-tab-list-btn');
+    const catBtn = document.getElementById('admin-tab-cat-btn');
+
+    formTab.classList.add('hidden');
+    listTab.classList.add('hidden');
+    catTab.classList.add('hidden');
+
+    formBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition';
+    listBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition';
+    catBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition';
 
     if (tabName === 'form') {
         formTab.classList.remove('hidden');
-        listTab.classList.add('hidden');
         formBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition';
-        listBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition';
-    } else {
-        formTab.classList.add('hidden');
+    } else if (tabName === 'list') {
         listTab.classList.remove('hidden');
         listBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition';
-        formBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-gray-400 border-transparent hover:text-gray-600 transition';
         renderAdminProductsList();
+    } else if (tabName === 'cat') {
+        catTab.classList.remove('hidden');
+        catBtn.className = 'py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition';
+        renderAdminCategoriesList();
     }
 }
 
@@ -794,7 +812,6 @@ function handleAdminFormSubmit(event) {
     let customProducts = loadCustomProducts();
 
     if (editingId) {
-        // UPDATE (수정)
         const index = customProducts.findIndex(p => p.id === editingId);
         if (index !== -1) {
             customProducts[index] = {
@@ -809,7 +826,6 @@ function handleAdminFormSubmit(event) {
             showToast('商品を更新しました ✓');
         }
     } else {
-        // CREATE (신규 등록)
         const newProduct = {
             id: 'custom-' + Date.now().toString(36),
             categoryId: categoryId,
@@ -836,7 +852,7 @@ function handleAdminFormSubmit(event) {
     closeAdminModal();
 }
 
-// RENDER MANAGEMENT LIST
+// RENDER PRODUCTS LIST
 function renderAdminProductsList() {
     const container = document.getElementById('admin-products-list-container');
     container.innerHTML = '';
@@ -873,7 +889,40 @@ function renderAdminProductsList() {
     });
 }
 
-// EDIT PRODUCT SETUP
+// RENDER CATEGORIES LIST
+function renderAdminCategoriesList() {
+    const container = document.getElementById('admin-categories-list-container');
+    container.innerHTML = '';
+
+    const customCategories = loadCustomCategories();
+
+    if (customCategories.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">追加されたカスタムカテゴリーはありません。</p>`;
+        return;
+    }
+
+    customCategories.forEach(cat => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs';
+
+        item.innerHTML = `
+            <div class="flex items-center space-x-3 overflow-hidden pr-2">
+                <img src="${cat.mainImg}" class="w-10 h-10 object-cover rounded-lg flex-shrink-0" alt="">
+                <div class="truncate">
+                    <p class="font-bold text-gray-800 truncate">${cat.title}</p>
+                    <p class="text-[10px] text-gray-400 truncate">${cat.subTitle || cat.desc}</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-1 flex-shrink-0">
+                <button onclick="deleteCategory('${cat.id}')" class="px-2.5 py-1 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-lg transition">
+                    <i class="fa-solid fa-trash"></i> 削除
+                </button>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
 function startEditProduct(productId) {
     const customProducts = loadCustomProducts();
     const prod = customProducts.find(p => p.id === productId);
@@ -894,7 +943,6 @@ function startEditProduct(productId) {
     toggleNewCategoryFields();
 }
 
-// DELETE PRODUCT
 function deleteProduct(productId) {
     if (!confirm('この商品を削除してもよろしいですか？')) return;
 
@@ -911,6 +959,29 @@ function deleteProduct(productId) {
 
     renderAdminProductsList();
     showToast('商品を削除しました');
+}
+
+function deleteCategory(categoryId) {
+    const customProducts = loadCustomProducts();
+    const hasProducts = customProducts.some(p => p.categoryId === categoryId);
+
+    if (hasProducts) {
+        alert('このカテゴリーには商品が登録されています。先にカテゴリー内の商品を削除してください。');
+        return;
+    }
+
+    if (!confirm('このカテゴリーを削除してもよろしいですか？')) return;
+
+    let customCategories = loadCustomCategories();
+    customCategories = customCategories.filter(c => c.id !== categoryId);
+    saveCustomCategories(customCategories);
+
+    buildCategories();
+    renderCategories();
+    populateAdminCategoryOptions();
+    renderAdminCategoriesList();
+
+    showToast('カテゴリーを削除しました');
 }
 
 function resetCustomProducts() {
@@ -944,5 +1015,3 @@ window.addEventListener('keydown', function(event) {
     </script>
 </body>
 </html>
-
-```
