@@ -145,7 +145,7 @@ body {
 
                 <nav class="hidden md:flex space-x-8 text-sm font-medium text-gray-700">
                     <button onclick="showView('home')" class="hover:text-brand-600 transition">ホーム</button>
-                    <button onclick="scrollToProducts()" class="hover:text-brand-600 transition">商品一覧</button>
+                    <button onclick="showView('home')" class="hover:text-brand-600 transition">商品一覧</button>
                     <button onclick="openStoreModal()" class="hover:text-brand-600 transition">店舗案内</button>
                 </nav>
 
@@ -209,7 +209,7 @@ body {
                     <p id="category-detail-desc" class="text-sm text-gray-600 mt-2"></p>
                 </div>
                 <button onclick="showView('home')" class="self-start md:self-center px-4 py-2 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm flex items-center">
-                    <i class="fa-solid fa-arrow-left mr-2"></i> Category List
+                    <i class="fa-solid fa-arrow-left mr-2"></i> カテゴリー一覧へ戻る
                 </button>
             </div>
 
@@ -574,7 +574,7 @@ body {
     <!-- Toast notification -->
     <div id="toast"></div>
 
-    <!-- FOOTER (이미지 영역 원본 디자인 재현) -->
+    <!-- FOOTER -->
     <footer class="bg-footerBg text-white py-12 px-6 sm:px-12 mt-16 rounded-t-[2.5rem] sm:rounded-t-[3.5rem]">
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 pb-10">
@@ -599,7 +599,8 @@ body {
                 <div class="space-y-3">
                     <h3 class="text-sm font-bold text-footerGold tracking-wide">サービス</h3>
                     <ul class="text-xs text-gray-200 space-y-1.5">
-                        <li>• 円でお支払いOK</li>
+                        <li>• Tax Free (免税対応)</li>
+                        <li>• Handmade in Busan</li>
                         <li>• 日本語対応可能</li>
                     </ul>
                 </div>
@@ -632,13 +633,17 @@ const STORAGE_KEYS = {
 };
 
 function loadCustomCategories() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || []; } catch (e) { return []; }
+    try { 
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || JSON.parse(localStorage.getItem('busanNubi_categories')) || []; 
+    } catch (e) { return []; }
 }
 function saveCustomCategories(list) {
     try { localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list)); } catch (e) {}
 }
 function loadCustomProducts() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || []; } catch (e) { return []; }
+    try { 
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.products)) || JSON.parse(localStorage.getItem('busanNubi_products')) || []; 
+    } catch (e) { return []; }
 }
 function saveCustomProducts(list) {
     try { localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list)); } catch (e) {}
@@ -725,7 +730,6 @@ function renderBanners() {
         `;
         slider.appendChild(item);
 
-        // Dots
         const dot = document.createElement('button');
         dot.className = `w-2.5 h-2.5 rounded-full transition-all ${idx === currentBannerIndex ? 'bg-brand-800 w-6' : 'bg-gray-300'}`;
         dot.onclick = () => goToBanner(idx);
@@ -926,6 +930,8 @@ function showView(viewName) {
     eventDetailView.classList.add('hidden');
 
     if (viewName === 'home') {
+        buildCategories();
+        renderCategories();
         homeView.classList.remove('hidden');
         heroBannerContainer.classList.remove('hidden');
     } else if (viewName === 'category-detail') {
@@ -1118,6 +1124,12 @@ function openAdminModal() {
 
 function closeAdminModal() {
     document.getElementById('admin-modal').classList.add('hidden');
+    buildCategories();
+    renderCategories();
+    if (activeCategory) {
+        activeCategory = categories.find(c => c.id === activeCategory.id) || null;
+        if (activeCategory) renderCategoryItems();
+    }
 }
 
 function switchAdminTab(tabName) {
@@ -1658,6 +1670,8 @@ function resetCustomProducts() {
     localStorage.removeItem(STORAGE_KEYS.categories);
     localStorage.removeItem(STORAGE_KEYS.products);
     localStorage.removeItem(STORAGE_KEYS.banners);
+    localStorage.removeItem('busanNubi_categories');
+    localStorage.removeItem('busanNubi_products');
     buildCategories();
     renderCategories();
     banners = DEFAULT_BANNERS;
