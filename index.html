@@ -279,7 +279,7 @@ body {
         </section>
     </main>
 
-    <!-- MODAL 1: ITEM DETAIL MODAL -->
+    <!-- MODAL 1: ITEM DETAIL MODAL (AUTOMATIC ROLLING IMAGE SLIDER) -->
     <div id="product-modal" onclick="closeProductModal()" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative fade-in">
             <button type="button" onclick="closeProductModal()" class="absolute top-4 right-4 z-20 w-10 h-10 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-700 shadow-md border border-gray-200 transition cursor-pointer">
@@ -287,9 +287,22 @@ body {
             </button>
 
             <div class="grid grid-cols-1 md:grid-cols-2">
-                <div class="bg-gray-50 p-6 flex flex-col justify-center items-center relative">
-                    <img id="modal-product-image" src="" alt="Product Detail" class="w-full h-72 sm:h-80 object-cover rounded-xl shadow-md">
+                <!-- Image Slider Container -->
+                <div class="bg-gray-50 p-6 flex flex-col justify-center items-center relative group min-h-[300px]">
+                    <div id="modal-slider-container" class="relative w-full h-72 sm:h-80 rounded-xl overflow-hidden shadow-md bg-white">
+                        <!-- Dynamic Slider Images -->
+                    </div>
+                    <!-- Slider Nav Buttons -->
+                    <button id="modal-prev-btn" onclick="prevProductSlide()" class="absolute left-8 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white text-gray-800 rounded-full flex items-center justify-center shadow-md transition opacity-0 group-hover:opacity-100 z-10">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <button id="modal-next-btn" onclick="nextProductSlide()" class="absolute right-8 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white text-gray-800 rounded-full flex items-center justify-center shadow-md transition opacity-0 group-hover:opacity-100 z-10">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                    <!-- Slider Dots Indicator -->
+                    <div id="modal-slider-dots" class="flex justify-center space-x-1.5 mt-3"></div>
                 </div>
+
                 <div class="p-6 sm:p-8 flex flex-col justify-between">
                     <div>
                         <span id="modal-product-category" class="text-xs font-semibold text-brand-600 tracking-wider uppercase">CATEGORIES</span>
@@ -384,7 +397,6 @@ body {
 
                 <form id="admin-form" onsubmit="handleAdminFormSubmit(event)" class="space-y-4">
                     <input type="hidden" id="admin-editing-product-id" value="">
-                    <input type="hidden" id="admin-product-img" value="">
 
                     <div class="admin-field">
                         <label for="admin-category-select">カテゴリー ＊</label>
@@ -422,18 +434,21 @@ body {
                         <input type="text" id="admin-product-size" placeholder="例：W28cm x H20cm x D10cm" required>
                     </div>
 
+                    <!-- MULTIPLE PRODUCT IMAGES UPLOAD -->
                     <div class="admin-field">
-                        <label>商品画像 ＊</label>
+                        <label>商品画像 (複数選択可能) ＊</label>
                         <div id="prod-drop-zone" class="drop-zone p-4 rounded-xl text-center cursor-pointer relative" onclick="document.getElementById('prod-file-input').click()">
-                            <input type="file" id="prod-file-input" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'prod')">
-                            <div id="prod-preview-container" class="hidden flex flex-col items-center">
-                                <img id="prod-preview-img" src="" class="h-32 object-contain rounded-lg shadow-sm mb-2" alt="Preview">
-                                <span class="text-[11px] text-brand-600 font-bold underline">画像を変更する</span>
+                            <input type="file" id="prod-file-input" accept="image/*" multiple class="hidden" onchange="handleFileSelect(event, 'prod')">
+                            
+                            <div id="prod-placeholder" class="py-3">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-400 mb-1"></i>
+                                <p class="text-xs text-gray-600 font-medium">クリックして画像を選択（複数可）、またはドラッグ＆ドロップ</p>
                             </div>
-                            <div id="prod-placeholder" class="py-4">
-                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-400 mb-2"></i>
-                                <p class="text-xs text-gray-600 font-medium">クリックして画像を選択、またはドラッグ＆ドロップ</p>
-                            </div>
+                        </div>
+
+                        <!-- Thumbnails List Container -->
+                        <div id="prod-thumbnails-list" class="flex flex-wrap gap-2 mt-3 min-h-[50px] p-2 bg-gray-50 rounded-xl border border-gray-100">
+                            <!-- Dynamic Thumbnails -->
                         </div>
                     </div>
 
@@ -474,8 +489,12 @@ body {
             <!-- TAB 3: CATEGORY MANAGEMENT -->
             <div id="admin-tab-cat" class="hidden">
                 <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6">
-                    <h4 class="text-xs font-bold text-brand-800 uppercase tracking-wider mb-3"><i class="fa-solid fa-plus-circle mr-1"></i> 新しいカテゴリーを登録</h4>
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 id="cat-form-heading" class="text-xs font-bold text-brand-800 uppercase tracking-wider"><i class="fa-solid fa-plus-circle mr-1"></i> 新しいカテゴリーを登録</h4>
+                        <button type="button" onclick="resetCategoryForm()" class="text-[11px] text-gray-500 hover:text-brand-800 underline">新規作成に切り替え</button>
+                    </div>
                     <form id="admin-cat-form" onsubmit="handleCategoryFormSubmit(event)" class="space-y-3">
+                        <input type="hidden" id="cat-editing-id" value="">
                         <input type="hidden" id="cat-add-img" value="">
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -509,7 +528,7 @@ body {
                             <input type="text" id="cat-add-desc" placeholder="カテゴリーの簡潔な説明">
                         </div>
                         <div class="flex justify-end pt-1">
-                            <button type="submit" class="px-4 py-2 bg-brand-800 hover:bg-brand-900 text-white rounded-lg text-xs font-bold transition shadow-sm">
+                            <button type="submit" id="cat-submit-btn" class="px-4 py-2 bg-brand-800 hover:bg-brand-900 text-white rounded-lg text-xs font-bold transition shadow-sm">
                                 カテゴリーを追加
                             </button>
                         </div>
@@ -640,7 +659,7 @@ body {
     </footer>
 
     <script>
-// [Firebase 설정 - 제공해주신 이미지 정보로 교체 완료]
+// [Firebase 설정]
 const firebaseConfig = {
   apiKey: "AIzaSyBcns6q2ytcoA-9xwnQaL2zwd_LyytmZGg",
   authDomain: "busan-nubi.firebaseapp.com",
@@ -692,7 +711,7 @@ const DEFAULT_CATEGORIES = [
     }
 ];
 
-// 기본 상품 시드 데이터
+// 기본 상품 시드 데이터 (다중 이미지 imgs 배열 지원)
 const DEFAULT_PRODUCTS = [
     {
         id: 'prod-s-1',
@@ -701,7 +720,7 @@ const DEFAULT_PRODUCTS = [
         color: 'アイボリー',
         size: 'W28cm x H20cm x D10cm',
         desc: 'やわらかな手触りのコットンキルティング生地を使用したSサイズトート。軽快にお出かけを楽しめます。',
-        img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=600'
+        imgs: ['https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=600']
     },
     {
         id: 'prod-m-1',
@@ -710,7 +729,7 @@ const DEFAULT_PRODUCTS = [
         color: 'ベージュ',
         size: 'W36cm x H26cm x D12cm',
         desc: 'デイリーユースに一番人気のMサイズ。しっかりとした収容力と上品なカラーリングが特徴です。',
-        img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=600'
+        imgs: ['https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=600']
     },
     {
         id: 'prod-cosme-1',
@@ -719,7 +738,7 @@ const DEFAULT_PRODUCTS = [
         color: 'アイボリー',
         size: 'Standard Box',
         desc: 'お肌にうるおいを与えるプレミアムスキンケア。釜山実店舗でも大人気の商品です。',
-        img: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=600'
+        imgs: ['https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=600']
     }
 ];
 
@@ -741,6 +760,9 @@ const STORAGE_KEYS = {
     banners: 'busanNubi_customBanners'
 };
 
+// 업로드 관리용 전역 배열
+let uploadedProductImgs = [];
+
 function loadCustomCategories() {
     try { 
         const raw = localStorage.getItem(STORAGE_KEYS.categories);
@@ -760,7 +782,14 @@ function loadCustomProducts() {
     try { 
         const raw = localStorage.getItem(STORAGE_KEYS.products);
         if (raw === null) return [...DEFAULT_PRODUCTS];
-        return JSON.parse(raw) || [];
+        const list = JSON.parse(raw) || [];
+        // 단일 img 형태와의 구버전 호환성 보장
+        return list.map(p => {
+            if (!p.imgs) {
+                p.imgs = p.img ? [p.img] : [];
+            }
+            return p;
+        });
     } catch (e) { return DEFAULT_PRODUCTS; }
 }
 
@@ -804,7 +833,6 @@ function initFirebaseListener() {
             if (data.products) localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(data.products));
             if (data.banners) localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(data.banners));
         } else {
-            // DB가 비어있는 초기 접속 시 시드 데이터 등록
             syncDataToFirebase();
         }
         buildCategories();
@@ -826,6 +854,11 @@ let banners = [];
 let currentBannerIndex = 0;
 let bannerTimer = null;
 let currentlySelectedProductIds = [];
+
+// 모달 슬라이더 전역 변수
+let modalSlideImages = [];
+let currentModalSlideIndex = 0;
+let modalSlideTimer = null;
 
 function buildCategories() {
     const customCategories = loadCustomCategories();
@@ -942,6 +975,7 @@ function openEventPage(bannerId) {
         grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-xs">現在、この企画展に登録されている商品はありません。</div>`;
     } else {
         eventProducts.forEach(item => {
+            const displayImg = (item.imgs && item.imgs.length > 0) ? item.imgs[0] : (item.img || '');
             const card = document.createElement('div');
             card.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm card-hover cursor-pointer flex flex-col justify-between';
             card.onclick = () => openProductModal(item);
@@ -949,7 +983,7 @@ function openEventPage(bannerId) {
             card.innerHTML = `
                 <div>
                     <div class="h-48 overflow-hidden bg-gray-100 relative">
-                        <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover">
+                        <img src="${displayImg}" alt="${item.title}" class="w-full h-full object-cover">
                         <span class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded-md text-gray-700 shadow-sm">
                             ${item.color}
                         </span>
@@ -1042,6 +1076,7 @@ function renderCategoryItems() {
     }
 
     filteredItems.forEach(item => {
+        const displayImg = (item.imgs && item.imgs.length > 0) ? item.imgs[0] : (item.img || '');
         const card = document.createElement('div');
         card.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm card-hover cursor-pointer flex flex-col justify-between';
         card.onclick = () => openProductModal(item);
@@ -1049,7 +1084,7 @@ function renderCategoryItems() {
         card.innerHTML = `
             <div>
                 <div class="h-48 overflow-hidden bg-gray-100 relative">
-                    <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover">
+                    <img src="${displayImg}" alt="${item.title}" class="w-full h-full object-cover">
                     <span class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded-md text-gray-700 shadow-sm">
                         ${item.color}
                     </span>
@@ -1104,13 +1139,22 @@ function showView(viewName) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// -------------------------------------------------------------
+// PRODUCT DETAIL MODAL & AUTOMATIC ROLLING SLIDER LOGIC
+// -------------------------------------------------------------
 function openProductModal(item) {
     if (!item) return;
-    document.getElementById('modal-product-image').src = item.img || '';
+
+    modalSlideImages = (item.imgs && item.imgs.length > 0) ? item.imgs : [item.img || ''];
+    currentModalSlideIndex = 0;
+
     document.getElementById('modal-product-category').innerText = activeCategory ? activeCategory.title : 'NUBI BAG';
     document.getElementById('modal-product-title').innerText = item.title || '';
     document.getElementById('modal-product-desc').innerText = item.desc || '';
     document.getElementById('modal-product-size').innerText = item.size || '';
+
+    renderModalSlider();
+    startModalSlideTimer();
 
     const modal = document.getElementById('product-modal');
     if (modal) {
@@ -1119,7 +1163,75 @@ function openProductModal(item) {
     }
 }
 
+function renderModalSlider() {
+    const container = document.getElementById('modal-slider-container');
+    const dotsContainer = document.getElementById('modal-slider-dots');
+    const prevBtn = document.getElementById('modal-prev-btn');
+    const nextBtn = document.getElementById('modal-next-btn');
+
+    container.innerHTML = '';
+    dotsContainer.innerHTML = '';
+
+    if (modalSlideImages.length === 0) {
+        container.innerHTML = `<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">画像がありません</div>`;
+        prevBtn.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        return;
+    }
+
+    if (modalSlideImages.length <= 1) {
+        prevBtn.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+    } else {
+        prevBtn.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+    }
+
+    modalSlideImages.forEach((src, idx) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = "Product Slide";
+        img.className = `absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${idx === currentModalSlideIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`;
+        container.appendChild(img);
+
+        if (modalSlideImages.length > 1) {
+            const dot = document.createElement('button');
+            dot.className = `w-2 h-2 rounded-full transition-all ${idx === currentModalSlideIndex ? 'bg-brand-800 w-5' : 'bg-gray-300'}`;
+            dot.onclick = () => goToProductSlide(idx);
+            dotsContainer.appendChild(dot);
+        }
+    });
+}
+
+function startModalSlideTimer() {
+    clearInterval(modalSlideTimer);
+    if (modalSlideImages.length > 1) {
+        modalSlideTimer = setInterval(() => {
+            nextProductSlide();
+        }, 3000); // 3초 간격 자동 롤링
+    }
+}
+
+function nextProductSlide() {
+    if (modalSlideImages.length <= 1) return;
+    currentModalSlideIndex = (currentModalSlideIndex + 1) % modalSlideImages.length;
+    renderModalSlider();
+}
+
+function prevProductSlide() {
+    if (modalSlideImages.length <= 1) return;
+    currentModalSlideIndex = (currentModalSlideIndex - 1 + modalSlideImages.length) % modalSlideImages.length;
+    renderModalSlider();
+}
+
+function goToProductSlide(idx) {
+    currentModalSlideIndex = idx;
+    renderModalSlider();
+    startModalSlideTimer();
+}
+
 function closeProductModal() {
+    clearInterval(modalSlideTimer);
     const modal = document.getElementById('product-modal');
     if (modal) {
         modal.classList.add('hidden');
@@ -1130,8 +1242,9 @@ function closeProductModal() {
 function openStoreModal() { document.getElementById('store-modal').classList.remove('hidden'); }
 function closeStoreModal() { document.getElementById('store-modal').classList.add('hidden'); }
 
-
-// DRAG & DROP FILE UPLOAD HELPER FUNCTIONS
+// -------------------------------------------------------------
+// DRAG & DROP & MULTIPLE FILE UPLOAD LOGIC
+// -------------------------------------------------------------
 function setupDragAndDrop() {
     const setupZone = (zoneId, inputId, type) => {
         const zone = document.getElementById(zoneId);
@@ -1152,8 +1265,8 @@ function setupDragAndDrop() {
         zone.addEventListener('drop', (e) => {
             const dt = e.dataTransfer;
             const files = dt.files;
-            if (files && files[0]) {
-                processFile(files[0], type);
+            if (files && files.length > 0) {
+                processFiles(files, type);
             }
         }, false);
     };
@@ -1170,57 +1283,57 @@ function preventDefaults(e) {
 
 function handleFileSelect(e, type) {
     const files = e.target.files;
-    if (files && files[0]) {
-        processFile(files[0], type);
+    if (files && files.length > 0) {
+        processFiles(files, type);
     }
 }
 
-function processFile(file, type) {
-    if (!file.type.match('image.*')) {
-        showToast('画像ファイルを選択してください');
-        return;
-    }
+function processFiles(files, type) {
+    Array.from(files).forEach(file => {
+        if (!file.type.match('image.*')) {
+            showToast('画像ファイルを選択してください');
+            return;
+        }
 
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            const max_size = 1200;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const max_size = 1200;
 
-            if (width > height) {
-                if (width > max_size) {
-                    height *= max_size / width;
-                    width = max_size;
+                if (width > height) {
+                    if (width > max_size) {
+                        height *= max_size / width;
+                        width = max_size;
+                    }
+                } else {
+                    if (height > max_size) {
+                        width *= max_size / height;
+                        height = max_size;
+                    }
                 }
-            } else {
-                if (height > max_size) {
-                    width *= max_size / height;
-                    height = max_size;
-                }
-            }
 
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
 
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-            setPreviewImage(dataUrl, type);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                addPreviewImage(dataUrl, type);
+            };
+            img.src = e.target.result;
         };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+    });
 }
 
-function setPreviewImage(dataUrl, type) {
+function addPreviewImage(dataUrl, type) {
     if (type === 'prod') {
-        document.getElementById('admin-product-img').value = dataUrl;
-        document.getElementById('prod-preview-img').src = dataUrl;
-        document.getElementById('prod-preview-container').classList.remove('hidden');
-        document.getElementById('prod-placeholder').classList.add('hidden');
+        uploadedProductImgs.push(dataUrl);
+        renderProductThumbnails();
     } else if (type === 'cat') {
         document.getElementById('cat-add-img').value = dataUrl;
         document.getElementById('cat-preview-img').src = dataUrl;
@@ -1234,12 +1347,37 @@ function setPreviewImage(dataUrl, type) {
     }
 }
 
+function renderProductThumbnails() {
+    const container = document.getElementById('prod-thumbnails-list');
+    container.innerHTML = '';
+
+    if (uploadedProductImgs.length === 0) {
+        container.innerHTML = `<span class="text-xs text-gray-400 p-2">選択された画像はありません</span>`;
+        return;
+    }
+
+    uploadedProductImgs.forEach((src, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200 shadow-sm flex-shrink-0 group';
+        wrapper.innerHTML = `
+            <img src="${src}" class="w-full h-full object-cover">
+            <button type="button" onclick="removeProductThumbnail(${idx})" class="absolute top-0.5 right-0.5 w-5 h-5 bg-black/70 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+        container.appendChild(wrapper);
+    });
+}
+
+function removeProductThumbnail(index) {
+    uploadedProductImgs.splice(index, 1);
+    renderProductThumbnails();
+}
+
 function clearPreviewImage(type) {
     if (type === 'prod') {
-        document.getElementById('admin-product-img').value = '';
-        document.getElementById('prod-preview-img').src = '';
-        document.getElementById('prod-preview-container').classList.add('hidden');
-        document.getElementById('prod-placeholder').classList.remove('hidden');
+        uploadedProductImgs = [];
+        renderProductThumbnails();
     } else if (type === 'cat') {
         document.getElementById('cat-add-img').value = '';
         document.getElementById('cat-preview-img').src = '';
@@ -1253,8 +1391,9 @@ function clearPreviewImage(type) {
     }
 }
 
-
+// -------------------------------------------------------------
 // ADMIN MANAGEMENT & TABS
+// -------------------------------------------------------------
 const NEW_CATEGORY_VALUE = '__new__';
 const ADMIN_SECRET = 'nubi2026admin';
 const ADMIN_FLAG_KEY = 'busanNubi_isAdmin';
@@ -1366,13 +1505,24 @@ function resetAdminForm() {
     document.getElementById('admin-editing-product-id').value = '';
     document.getElementById('admin-form-heading').innerText = '新しい商品を登録';
     document.getElementById('admin-submit-btn').innerText = '登録する';
-    clearPreviewImage('prod');
+    uploadedProductImgs = [];
+    renderProductThumbnails();
     toggleNewCategoryFields();
+}
+
+function resetCategoryForm() {
+    document.getElementById('admin-cat-form').reset();
+    document.getElementById('cat-editing-id').value = '';
+    document.getElementById('cat-add-img').value = '';
+    clearPreviewImage('cat');
+    document.getElementById('cat-form-heading').innerText = '新しいカテゴリーを登録';
+    document.getElementById('cat-submit-btn').innerText = 'カテゴリーを追加';
 }
 
 function handleCategoryFormSubmit(event) {
     event.preventDefault();
 
+    const editingId = document.getElementById('cat-editing-id').value;
     const title = document.getElementById('cat-add-title').value.trim();
     const subtitle = document.getElementById('cat-add-subtitle').value.trim();
     const img = document.getElementById('cat-add-img').value;
@@ -1383,17 +1533,33 @@ function handleCategoryFormSubmit(event) {
         return;
     }
 
-    const newCategory = {
-        id: 'cat-custom-' + Date.now().toString(36),
-        title: title,
-        subTitle: subtitle || title,
-        desc: desc || title,
-        tag: '日韓夫婦',
-        mainImg: img
-    };
+    let customCategories = loadCustomCategories();
 
-    const customCategories = loadCustomCategories();
-    customCategories.push(newCategory);
+    if (editingId) {
+        const index = customCategories.findIndex(c => c.id === editingId);
+        if (index !== -1) {
+            customCategories[index] = {
+                ...customCategories[index],
+                title: title,
+                subTitle: subtitle || title,
+                desc: desc || title,
+                mainImg: img
+            };
+            showToast('カテゴリーを更新しました ✓');
+        }
+    } else {
+        const newCategory = {
+            id: 'cat-custom-' + Date.now().toString(36),
+            title: title,
+            subTitle: subtitle || title,
+            desc: desc || title,
+            tag: '日韓夫婦',
+            mainImg: img
+        };
+        customCategories.push(newCategory);
+        showToast('新しいカテゴリーを登録しました ✓');
+    }
+
     saveCustomCategories(customCategories);
 
     buildCategories();
@@ -1401,9 +1567,23 @@ function handleCategoryFormSubmit(event) {
     populateAdminCategoryOptions();
     renderAdminCategoriesList();
 
-    document.getElementById('admin-cat-form').reset();
-    clearPreviewImage('cat');
-    showToast('新しいカテゴリーを登録しました ✓');
+    resetCategoryForm();
+}
+
+function startEditCategory(categoryId) {
+    const customCategories = loadCustomCategories();
+    const cat = customCategories.find(c => c.id === categoryId);
+    if (!cat) return;
+
+    document.getElementById('cat-editing-id').value = cat.id;
+    document.getElementById('cat-add-title').value = cat.title || '';
+    document.getElementById('cat-add-subtitle').value = cat.subTitle || '';
+    document.getElementById('cat-add-desc').value = cat.desc || '';
+
+    setPreviewImage(cat.mainImg, 'cat');
+
+    document.getElementById('cat-form-heading').innerText = 'カテゴリーを編集';
+    document.getElementById('cat-submit-btn').innerText = 'カテゴリーを更新';
 }
 
 function handleAdminFormSubmit(event) {
@@ -1412,10 +1592,9 @@ function handleAdminFormSubmit(event) {
     const editingId = document.getElementById('admin-editing-product-id').value;
     const categorySelect = document.getElementById('admin-category-select');
     let categoryId = categorySelect.value;
-    const img = document.getElementById('admin-product-img').value;
 
-    if (!img) {
-        showToast('商品画像を登録してください');
+    if (uploadedProductImgs.length === 0) {
+        showToast('商品画像を1枚以上登録してください');
         return;
     }
 
@@ -1432,7 +1611,7 @@ function handleAdminFormSubmit(event) {
             subTitle: document.getElementById('admin-new-category-subtitle').value.trim(),
             desc: document.getElementById('admin-new-category-desc').value.trim() || newTitle,
             tag: '日韓夫婦',
-            mainImg: img
+            mainImg: uploadedProductImgs[0]
         };
 
         const customCategories = loadCustomCategories();
@@ -1463,7 +1642,7 @@ function handleAdminFormSubmit(event) {
                 color: color,
                 desc: desc,
                 size: size,
-                img: img
+                imgs: [...uploadedProductImgs]
             };
             showToast('商品を更新しました ✓');
         }
@@ -1475,7 +1654,7 @@ function handleAdminFormSubmit(event) {
             color: color,
             desc: desc,
             size: size,
-            img: img
+            imgs: [...uploadedProductImgs]
         };
         customProducts.push(newProduct);
         showToast('商品を登録しました ✓');
@@ -1632,11 +1811,12 @@ function populateBannerProductCheckboxes() {
 
     allProducts.forEach(prod => {
         const isChecked = currentlySelectedProductIds.includes(prod.id);
+        const displayImg = (prod.imgs && prod.imgs.length > 0) ? prod.imgs[0] : (prod.img || '');
         const item = document.createElement('label');
         item.className = 'flex items-center space-x-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded-lg';
         item.innerHTML = `
             <input type="checkbox" value="${prod.id}" ${isChecked ? 'checked' : ''} class="banner-prod-checkbox rounded text-brand-800 focus:ring-brand-500">
-            <img src="${prod.img}" class="w-6 h-6 object-cover rounded" alt="">
+            <img src="${displayImg}" class="w-6 h-6 object-cover rounded" alt="">
             <span class="truncate">${prod.title} (${prod.color})</span>
         `;
         container.appendChild(item);
@@ -1679,15 +1859,17 @@ function renderAdminProductsList() {
     }
 
     customProducts.forEach(prod => {
+        const displayImg = (prod.imgs && prod.imgs.length > 0) ? prod.imgs[0] : (prod.img || '');
+        const imgCount = (prod.imgs && prod.imgs.length > 0) ? prod.imgs.length : 1;
         const item = document.createElement('div');
         item.className = 'flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs';
 
         item.innerHTML = `
             <div class="flex items-center space-x-3 overflow-hidden pr-2">
-                <img src="${prod.img}" class="w-10 h-10 object-cover rounded-lg flex-shrink-0" alt="">
+                <img src="${displayImg}" class="w-10 h-10 object-cover rounded-lg flex-shrink-0" alt="">
                 <div class="truncate">
                     <p class="font-bold text-gray-800 truncate">${prod.title}</p>
-                    <p class="text-[10px] text-gray-400">${prod.color} | ${prod.size}</p>
+                    <p class="text-[10px] text-gray-400">${prod.color} | ${prod.size} (画像: ${imgCount}枚)</p>
                 </div>
             </div>
             <div class="flex items-center space-x-1 flex-shrink-0">
@@ -1738,6 +1920,9 @@ function renderAdminCategoriesList() {
                 </div>
             </div>
             <div class="flex items-center space-x-1 flex-shrink-0">
+                <button onclick="startEditCategory('${cat.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition">
+                    <i class="fa-solid fa-pen"></i> 編集
+                </button>
                 <button onclick="deleteCategory('${cat.id}')" class="px-2.5 py-1 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-lg transition">
                     <i class="fa-solid fa-trash"></i> 削除
                 </button>
@@ -1818,7 +2003,8 @@ function startEditProduct(productId) {
     document.getElementById('admin-product-size').value = prod.size;
     document.getElementById('admin-product-desc').value = prod.desc;
 
-    setPreviewImage(prod.img, 'prod');
+    uploadedProductImgs = (prod.imgs && prod.imgs.length > 0) ? [...prod.imgs] : (prod.img ? [prod.img] : []);
+    renderProductThumbnails();
 
     document.getElementById('admin-form-heading').innerText = '商品を編集';
     document.getElementById('admin-submit-btn').innerText = '更新する';
