@@ -1510,7 +1510,7 @@ function handleCategoryFormSubmit(event) {
             title: title,
             subTitle: subtitle || title,
             desc: desc || title,
-            tag: '日韓夫婦',
+            tag: '',
             mainImg: img
         };
         customCategories.push(newCategory);
@@ -1567,7 +1567,7 @@ function handleAdminFormSubmit(event) {
             title: newTitle,
             subTitle: document.getElementById('admin-new-category-subtitle').value.trim(),
             desc: document.getElementById('admin-new-category-desc').value.trim() || newTitle,
-            tag: '日韓夫婦',
+            tag: '',
             mainImg: uploadedProductImgs[0]
         };
 
