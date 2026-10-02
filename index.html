@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="3MLQQgsvt9Xyqc8nvDs1t2lLphZXReafvHdnhek85U8" />
-    <!-- 1. SEO 최적화 메타 태그 -->
     <title>釜山国際市場 ヌビバッグ＆韓国コスメ専門店 | BUSAN NUBI</title>
     <meta name="description" content="釜山国際市場のヌビバッグ＆韓国コスメ専門店。丁寧なハンドメイドヌビバッグ（イブルバッグ）や人気スキンケアを clear 価格でお届け。チャガルチ駅徒歩5分。日本語対応・日本円OK。">
     <meta name="keywords" content="釜山 ヌビバッグ, 国際市場 ヌビバッグ, 韓国 ヌビバッグ, ヌビトート, 釜山 韓国コスメ, アロセル, 釜山ショッピング, 釜山国際市場">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://github.com/durielbong/nubibag/">
 
-    <!-- 2. SNS 및 LINE 공유용 Open Graph 메타 태그 -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="釜山国際市場 ヌビバッグ＆韓国コスメ専門店 | BUSAN NUBI">
     <meta property="og:description" content="釜山国際市場からお届けするハンドメイドヌビバッグと厳選韓国コスメ。実店舗へのアクセスもご案内。">
@@ -19,19 +17,14 @@
     <meta property="og:url" content="https://사용자_github_username.github.io/리포지토리명/">
     <meta property="og:locale" content="ja_JP">
 
-    <!-- 3. 구글 서치 콘솔 소유권 확인 태그 -->
     <meta name="google-site-verification" content="google-site-verification=kShXT84SMgEMJRQoJEmGeTPSootjHLY7vqE9zHYI684" />
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
-    
-    <!-- Firebase SDK (Compat Version) -->
+
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -61,7 +54,6 @@
         }
     </script>
     <style>
-/* BASE STYLES */
 body {
     font-family: 'Noto Sans JP', sans-serif;
     background-color: #fcfbfa;
@@ -95,7 +87,6 @@ body {
     overflow: hidden;
 }
 
-/* ADMIN MODAL */
 .admin-field label {
     display: block;
     font-size: 0.75rem;
@@ -122,7 +113,6 @@ body {
     box-shadow: 0 0 0 3px rgba(197, 155, 109, 0.15);
 }
 
-/* Drag and Drop Zone Style */
 .drop-zone {
     border: 2px dashed #cbd5e1;
     background-color: #f8fafc;
@@ -186,25 +176,19 @@ body {
     </header>
 
     <main class="flex-grow">
-        <!-- HERO BANNER ROLLING SLIDER -->
         <div id="hero-banner-container" class="relative bg-brand-50 border-b border-brand-100 overflow-hidden py-8 sm:py-12 group">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div id="banner-slider" class="relative rounded-2xl overflow-hidden shadow-lg bg-white min-h-[220px] sm:min-h-[300px]">
-                    <!-- Dynamic Banner Items -->
-                </div>
+                <div id="banner-slider" class="relative rounded-2xl overflow-hidden shadow-lg bg-white min-h-[220px] sm:min-h-[300px]"></div>
             </div>
-            <!-- Slider Navigation Buttons -->
             <button onclick="prevBanner()" class="absolute left-6 sm:left-12 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-gray-800 rounded-full flex items-center justify-center shadow-md transition opacity-0 group-hover:opacity-100 z-10">
                 <i class="fa-solid fa-chevron-left text-sm"></i>
             </button>
             <button onclick="nextBanner()" class="absolute right-6 sm:right-12 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-gray-800 rounded-full flex items-center justify-center shadow-md transition opacity-0 group-hover:opacity-100 z-10">
                 <i class="fa-solid fa-chevron-right text-sm"></i>
             </button>
-            <!-- Slider Dots -->
             <div id="banner-dots" class="flex justify-center space-x-2 mt-4"></div>
         </div>
 
-        <!-- VIEW 1: CATEGORY SELECTION (HOME) -->
         <section id="view-home" class="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
                 <span class="text-xs font-bold tracking-widest text-brand-600 uppercase">ヌビバッグコレクション</span>
@@ -214,7 +198,6 @@ body {
             <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"></div>
         </section>
 
-        <!-- VIEW 2: CATEGORY DETAIL -->
         <section id="view-category-detail" class="hidden py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
             <div class="flex items-center text-xs text-gray-500 mb-6 space-x-2">
                 <button onclick="showView('home')" class="hover:text-brand-600 transition flex items-center">
@@ -252,7 +235,6 @@ body {
             <div id="product-items-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
         </section>
 
-        <!-- VIEW 3: EVENT / PROMOTION DETAIL PAGE -->
         <section id="view-event-detail" class="hidden py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
             <div class="flex items-center text-xs text-gray-500 mb-6 space-x-2">
                 <button onclick="showView('home')" class="hover:text-brand-600 transition flex items-center">
@@ -279,7 +261,6 @@ body {
         </section>
     </main>
 
-    <!-- MODAL 1: ITEM DETAIL MODAL (AUTOMATIC ROLLING IMAGE SLIDER) -->
     <div id="product-modal" onclick="closeProductModal()" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative fade-in">
             <button type="button" onclick="closeProductModal()" class="absolute top-4 right-4 z-20 w-10 h-10 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-700 shadow-md border border-gray-200 transition cursor-pointer">
@@ -287,19 +268,14 @@ body {
             </button>
 
             <div class="grid grid-cols-1 md:grid-cols-2">
-                <!-- Image Slider Container -->
                 <div class="bg-gray-50 p-6 flex flex-col justify-center items-center relative group min-h-[300px]">
-                    <div id="modal-slider-container" class="relative w-full h-72 sm:h-80 rounded-xl overflow-hidden shadow-md bg-white">
-                        <!-- Dynamic Slider Images -->
-                    </div>
-                    <!-- Slider Nav Buttons -->
+                    <div id="modal-slider-container" class="relative w-full h-72 sm:h-80 rounded-xl overflow-hidden shadow-md bg-white"></div>
                     <button id="modal-prev-btn" onclick="prevProductSlide()" class="absolute left-8 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white text-gray-800 rounded-full flex items-center justify-center shadow-md transition opacity-0 group-hover:opacity-100 z-10">
                         <i class="fa-solid fa-chevron-left text-xs"></i>
                     </button>
                     <button id="modal-next-btn" onclick="nextProductSlide()" class="absolute right-8 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white text-gray-800 rounded-full flex items-center justify-center shadow-md transition opacity-0 group-hover:opacity-100 z-10">
                         <i class="fa-solid fa-chevron-right text-xs"></i>
                     </button>
-                    <!-- Slider Dots Indicator -->
                     <div id="modal-slider-dots" class="flex justify-center space-x-1.5 mt-3"></div>
                 </div>
 
@@ -343,7 +319,6 @@ body {
         </div>
     </div>
 
-    <!-- MODAL 2: STORE LOCATION -->
     <div id="store-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative fade-in">
             <button onclick="closeStoreModal()" class="absolute top-4 right-4 z-10 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 transition">
@@ -366,14 +341,12 @@ body {
         </div>
     </div>
 
-    <!-- MODAL 3: ADMIN MANAGEMENT -->
     <div id="admin-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative fade-in my-8">
             <button onclick="closeAdminModal()" class="absolute top-4 right-4 z-10 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 transition">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
 
-            <!-- Admin Tab Switcher -->
             <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
                 <button id="admin-tab-form-btn" onclick="switchAdminTab('form')" class="py-2 px-4 border-b-2 font-bold text-xs text-brand-800 border-brand-800 transition whitespace-nowrap">
                     <i class="fa-solid fa-pen-to-square mr-1"></i> 商品登録 / 編集
@@ -389,7 +362,6 @@ body {
                 </button>
             </div>
 
-            <!-- TAB 1: FORM (Add / Edit Product) -->
             <div id="admin-tab-form">
                 <div class="mb-4">
                     <h3 id="admin-form-heading" class="text-lg font-bold text-gray-900">新しい商品を登録</h3>
@@ -434,22 +406,18 @@ body {
                         <input type="text" id="admin-product-size" placeholder="例：W28cm x H20cm x D10cm" required>
                     </div>
 
-                    <!-- MULTIPLE PRODUCT IMAGES UPLOAD -->
                     <div class="admin-field">
                         <label>商品画像 (複数選択可能) ＊</label>
                         <div id="prod-drop-zone" class="drop-zone p-4 rounded-xl text-center cursor-pointer relative" onclick="document.getElementById('prod-file-input').click()">
                             <input type="file" id="prod-file-input" accept="image/*" multiple class="hidden" onchange="handleFileSelect(event, 'prod')">
-                            
                             <div id="prod-placeholder" class="py-3">
                                 <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-400 mb-1"></i>
                                 <p class="text-xs text-gray-600 font-medium">クリックして画像を選択（複数可）、またはドラッグ＆ドロップ</p>
                             </div>
                         </div>
 
-                        <!-- Thumbnails List Container -->
-                        <div id="prod-thumbnails-list" class="flex flex-wrap gap-2 mt-3 min-h-[50px] p-2 bg-gray-50 rounded-xl border border-gray-100">
-                            <!-- Dynamic Thumbnails -->
-                        </div>
+                        <div id="prod-thumbnails-list" class="flex flex-wrap gap-2 mt-3 min-h-[50px] p-2 bg-gray-50 rounded-xl border border-gray-100"></div>
+                        <p class="text-[10px] text-gray-400 mt-1">※ 一番左の画像が商品一覧・カテゴリーのメイン画像として使用されます。矢印ボタンで順番を入れ替えできます。</p>
                     </div>
 
                     <div class="admin-field">
@@ -473,7 +441,6 @@ body {
                 </form>
             </div>
 
-            <!-- TAB 2: REGISTERED PRODUCTS LIST (WITH CATEGORY FILTER) -->
             <div id="admin-tab-list" class="hidden">
                 <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <h3 class="text-lg font-bold text-gray-900">登録済み商品一覧</h3>
@@ -486,7 +453,6 @@ body {
                 <div id="admin-products-list-container" class="max-h-80 overflow-y-auto space-y-3 pr-1"></div>
             </div>
 
-            <!-- TAB 3: CATEGORY MANAGEMENT -->
             <div id="admin-tab-cat" class="hidden">
                 <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6">
                     <div class="flex justify-between items-center mb-3">
@@ -541,7 +507,6 @@ body {
                 <div id="admin-categories-list-container" class="max-h-60 overflow-y-auto space-y-3 pr-1"></div>
             </div>
 
-            <!-- TAB 4: BANNER & EVENT MANAGEMENT -->
             <div id="admin-tab-banner" class="hidden">
                 <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6">
                     <div class="flex justify-between items-center mb-3">
@@ -584,7 +549,6 @@ body {
                             <textarea id="banner-add-desc" rows="2" placeholder="企画展の詳しい説明を入力してください"></textarea>
                         </div>
 
-                        <!-- 1. CATEGORY FILTER DROPDOWN -->
                         <div class="admin-field">
                             <label for="banner-cat-filter">1. カテゴリーを選択して商品を絞り込み</label>
                             <select id="banner-cat-filter" onchange="filterBannerProductsByCategory()" class="bg-white border border-gray-200 rounded-xl p-2 text-xs w-full">
@@ -592,12 +556,9 @@ body {
                             </select>
                         </div>
 
-                        <!-- 2. PRODUCT CHECKBOX LIST -->
                         <div class="admin-field">
                             <label>2. 企画展に連動・露出する商品を選択 (複数選択可)</label>
-                            <div id="banner-product-checkboxes" class="max-h-40 overflow-y-auto border border-gray-200 rounded-xl p-3 bg-white space-y-2">
-                                <!-- Dynamic JS rendering -->
-                            </div>
+                            <div id="banner-product-checkboxes" class="max-h-40 overflow-y-auto border border-gray-200 rounded-xl p-3 bg-white space-y-2"></div>
                         </div>
 
                         <div class="flex justify-end pt-1 gap-2">
@@ -617,14 +578,11 @@ body {
         </div>
     </div>
 
-    <!-- Toast notification -->
     <div id="toast"></div>
 
-    <!-- FOOTER -->
     <footer class="bg-footerBg text-white py-12 px-6 sm:px-12 mt-16 rounded-t-[2.5rem] sm:rounded-t-[3.5rem]">
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 pb-10">
-                <!-- 1. Brand Info -->
                 <div class="space-y-3">
                     <h3 class="text-base font-bold serif-title text-footerGold tracking-wider">BUSAN NUBI & BEAUTY</h3>
                     <p class="text-xs text-gray-200 leading-relaxed">
@@ -632,7 +590,6 @@ body {
                     </p>
                 </div>
 
-                <!-- 2. Store Info -->
                 <div class="space-y-3">
                     <h3 class="text-sm font-bold text-footerGold tracking-wide">店舗情報</h3>
                     <div class="text-xs text-gray-200 space-y-1.5 leading-relaxed">
@@ -641,7 +598,6 @@ body {
                     </div>
                 </div>
 
-                <!-- 3. Service -->
                 <div class="space-y-3">
                     <h3 class="text-sm font-bold text-footerGold tracking-wide">サービス</h3>
                     <ul class="text-xs text-gray-200 space-y-1.5">
@@ -651,7 +607,6 @@ body {
                 </div>
             </div>
 
-            <!-- Bottom Copyright -->
             <div class="border-t border-white/10 pt-8 text-center">
                 <p class="text-[11px] text-gray-400 tracking-wider">&copy; BUSAN NUBI & COSMETICS. All rights reserved.</p>
             </div>
@@ -659,7 +614,6 @@ body {
     </footer>
 
     <script>
-// [Firebase 설정]
 const firebaseConfig = {
   apiKey: "AIzaSyBcns6q2ytcoA-9xwnQaL2zwd_LyytmZGg",
   authDomain: "busan-nubi.firebaseapp.com",
@@ -671,11 +625,9 @@ const firebaseConfig = {
   databaseURL: "https://busan-nubi-default-rtdb.firebaseio.com"
 };
 
-// Initialize Firebase Realtime Database
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// 기본 공개용 카테고리 시드 데이터
 const DEFAULT_CATEGORIES = [
     {
         id: 'cat-s-size',
@@ -711,7 +663,6 @@ const DEFAULT_CATEGORIES = [
     }
 ];
 
-// 기본 상품 시드 데이터 (다중 이미지 imgs 배열 지원)
 const DEFAULT_PRODUCTS = [
     {
         id: 'prod-s-1',
@@ -742,7 +693,6 @@ const DEFAULT_PRODUCTS = [
     }
 ];
 
-// 기본 배ナー 시드 데이터
 const DEFAULT_BANNERS = [
     {
         id: 'default-banner-1',
@@ -760,7 +710,6 @@ const STORAGE_KEYS = {
     banners: 'busanNubi_customBanners'
 };
 
-// 업로드 관리용 전역 배열
 let uploadedProductImgs = [];
 
 function loadCustomCategories() {
@@ -783,7 +732,6 @@ function loadCustomProducts() {
         const raw = localStorage.getItem(STORAGE_KEYS.products);
         if (raw === null) return [...DEFAULT_PRODUCTS];
         const list = JSON.parse(raw) || [];
-        // 단일 img 형태와의 구버전 호환성 보장
         return list.map(p => {
             if (!p.imgs) {
                 p.imgs = p.img ? [p.img] : [];
@@ -815,7 +763,6 @@ function saveCustomBanners(list) {
     } catch (e) {}
 }
 
-// [Firebase 실시간 데이터 수신 및 전송 로직]
 function syncDataToFirebase() {
     const payload = {
         categories: loadCustomCategories(),
@@ -855,7 +802,6 @@ let currentBannerIndex = 0;
 let bannerTimer = null;
 let currentlySelectedProductIds = [];
 
-// 모달 슬라이더 전역 변수
 let modalSlideImages = [];
 let currentModalSlideIndex = 0;
 let modalSlideTimer = null;
@@ -877,7 +823,6 @@ function buildCategories() {
     return categories;
 }
 
-// APP LOGIC
 let activeCategory = null;
 let activeColorFilter = 'all';
 
@@ -889,7 +834,6 @@ window.onload = function () {
     setupDragAndDrop();
 };
 
-// BANNER SLIDER LOGIC
 function renderBanners() {
     const slider = document.getElementById('banner-slider');
     const dots = document.getElementById('banner-dots');
@@ -955,7 +899,6 @@ function goToBanner(idx) {
     startBannerTimer();
 }
 
-// EVENT PAGE DISPLAY
 function openEventPage(bannerId) {
     const banner = banners.find(b => b.id === bannerId);
     if (!banner) return;
@@ -1139,9 +1082,6 @@ function showView(viewName) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// -------------------------------------------------------------
-// PRODUCT DETAIL MODAL & AUTOMATIC ROLLING SLIDER LOGIC
-// -------------------------------------------------------------
 function openProductModal(item) {
     if (!item) return;
 
@@ -1208,7 +1148,7 @@ function startModalSlideTimer() {
     if (modalSlideImages.length > 1) {
         modalSlideTimer = setInterval(() => {
             nextProductSlide();
-        }, 3000); // 3초 간격 자동 롤링
+        }, 3000);
     }
 }
 
@@ -1242,9 +1182,6 @@ function closeProductModal() {
 function openStoreModal() { document.getElementById('store-modal').classList.remove('hidden'); }
 function closeStoreModal() { document.getElementById('store-modal').classList.add('hidden'); }
 
-// -------------------------------------------------------------
-// DRAG & DROP & MULTIPLE FILE UPLOAD LOGIC
-// -------------------------------------------------------------
 function setupDragAndDrop() {
     const setupZone = (zoneId, inputId, type) => {
         const zone = document.getElementById(zoneId);
@@ -1357,16 +1294,39 @@ function renderProductThumbnails() {
     }
 
     uploadedProductImgs.forEach((src, idx) => {
+        const isFirst = idx === 0;
+        const isLast = idx === uploadedProductImgs.length - 1;
+
         const wrapper = document.createElement('div');
         wrapper.className = 'relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200 shadow-sm flex-shrink-0 group';
         wrapper.innerHTML = `
             <img src="${src}" class="w-full h-full object-cover">
+            ${isFirst ? '<span class="absolute bottom-0 left-0 right-0 bg-brand-800/90 text-white text-[8px] font-bold text-center py-0.5">メイン</span>' : ''}
             <button type="button" onclick="removeProductThumbnail(${idx})" class="absolute top-0.5 right-0.5 w-5 h-5 bg-black/70 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] transition">
                 <i class="fa-solid fa-xmark"></i>
             </button>
+            <div class="absolute top-0.5 left-0.5 flex space-x-0.5">
+                <button type="button" onclick="moveProductThumbnail(${idx}, -1)" ${isFirst ? 'disabled' : ''} class="w-5 h-5 ${isFirst ? 'bg-black/20 cursor-not-allowed' : 'bg-black/70 hover:bg-brand-600'} text-white rounded-full flex items-center justify-center text-[9px] transition">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button type="button" onclick="moveProductThumbnail(${idx}, 1)" ${isLast ? 'disabled' : ''} class="w-5 h-5 ${isLast ? 'bg-black/20 cursor-not-allowed' : 'bg-black/70 hover:bg-brand-600'} text-white rounded-full flex items-center justify-center text-[9px] transition">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
         `;
         container.appendChild(wrapper);
     });
+}
+
+function moveProductThumbnail(index, direction) {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= uploadedProductImgs.length) return;
+
+    const temp = uploadedProductImgs[index];
+    uploadedProductImgs[index] = uploadedProductImgs[targetIndex];
+    uploadedProductImgs[targetIndex] = temp;
+
+    renderProductThumbnails();
 }
 
 function removeProductThumbnail(index) {
@@ -1391,9 +1351,6 @@ function clearPreviewImage(type) {
     }
 }
 
-// -------------------------------------------------------------
-// ADMIN MANAGEMENT & TABS
-// -------------------------------------------------------------
 const NEW_CATEGORY_VALUE = '__new__';
 const ADMIN_SECRET = 'nubi2026admin';
 const ADMIN_FLAG_KEY = 'busanNubi_isAdmin';
@@ -1673,7 +1630,6 @@ function handleAdminFormSubmit(event) {
     closeAdminModal();
 }
 
-// BANNER FORM SUBMIT & EDITING
 function resetBannerForm() {
     document.getElementById('admin-banner-form').reset();
     document.getElementById('banner-editing-id').value = '';
@@ -2079,6 +2035,20 @@ function resetCustomProducts() {
     syncDataToFirebase();
     closeAdminModal();
     showToast('登録データをリセットしました');
+}
+
+function setPreviewImage(dataUrl, type) {
+    if (type === 'cat') {
+        document.getElementById('cat-add-img').value = dataUrl;
+        document.getElementById('cat-preview-img').src = dataUrl;
+        document.getElementById('cat-preview-container').classList.remove('hidden');
+        document.getElementById('cat-placeholder').classList.add('hidden');
+    } else if (type === 'banner') {
+        document.getElementById('banner-add-img').value = dataUrl;
+        document.getElementById('banner-preview-img').src = dataUrl;
+        document.getElementById('banner-preview-container').classList.remove('hidden');
+        document.getElementById('banner-placeholder').classList.add('hidden');
+    }
 }
 
 let toastTimer = null;
