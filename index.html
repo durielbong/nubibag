@@ -626,76 +626,69 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const STORAGE_KEYS = {
-    categories: 'busanNubi_customCategories',
-    products: 'busanNubi_customProducts',
-    banners: 'busanNubi_customBanners'
-};
-
+let serverCategories = [];
+let serverProducts = [];
+let serverBanners = [];
 let uploadedProductImgs = [];
 
+function safeStorageSet(key, val) {
+    try {
+        localStorage.setItem(key, val);
+    } catch (e) {
+        console.warn("localStorage quota exceeded, skipping local cache.");
+    }
+}
+
 function loadCustomCategories() {
+    if (serverCategories && serverCategories.length > 0) return serverCategories;
     try { 
-        const raw = localStorage.getItem(STORAGE_KEYS.categories);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
+        const raw = localStorage.getItem('busanNubi_customCategories');
+        return raw ? JSON.parse(raw) : [];
     } catch (e) { return []; }
 }
 
 function saveCustomCategories(list) {
-    try { 
-        localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list)); 
-        syncDataToFirebase();
-    } catch (e) {}
+    serverCategories = list;
+    safeStorageSet('busanNubi_customCategories', JSON.stringify(list));
+    syncDataToFirebase();
     refreshUI();
 }
 
 function loadCustomProducts() {
+    if (serverProducts && serverProducts.length > 0) return serverProducts;
     try { 
-        const raw = localStorage.getItem(STORAGE_KEYS.products);
-        if (!raw) return [];
-        const list = JSON.parse(raw);
-        if (!Array.isArray(list)) return [];
-        return list.map(p => {
-            if (!p.imgs) {
-                p.imgs = p.img ? [p.img] : [];
-            }
-            return p;
-        });
+        const raw = localStorage.getItem('busanNubi_customProducts');
+        return raw ? JSON.parse(raw) : [];
     } catch (e) { return []; }
 }
 
 function saveCustomProducts(list) {
-    try { 
-        localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list)); 
-        syncDataToFirebase();
-    } catch (e) {}
+    serverProducts = list;
+    safeStorageSet('busanNubi_customProducts', JSON.stringify(list));
+    syncDataToFirebase();
     refreshUI();
 }
 
 function loadCustomBanners() {
+    if (serverBanners && serverBanners.length > 0) return serverBanners;
     try {
-        const raw = localStorage.getItem(STORAGE_KEYS.banners);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
+        const raw = localStorage.getItem('busanNubi_customBanners');
+        return raw ? JSON.parse(raw) : [];
     } catch (e) { return []; }
 }
 
 function saveCustomBanners(list) {
-    try { 
-        localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(list)); 
-        syncDataToFirebase();
-    } catch (e) {}
+    serverBanners = list;
+    safeStorageSet('busanNubi_customBanners', JSON.stringify(list));
+    syncDataToFirebase();
     refreshUI();
 }
 
 function syncDataToFirebase() {
     const payload = {
-        categories: loadCustomCategories(),
-        products: loadCustomProducts(),
-        banners: loadCustomBanners()
+        categories: serverCategories,
+        products: serverProducts,
+        banners: serverBanners
     };
     db.ref('storeData').set(payload);
 }
@@ -726,9 +719,13 @@ function initFirebaseListener() {
     db.ref('storeData').on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            if (data.categories) localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(data.categories));
-            if (data.products) localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(data.products));
-            if (data.banners) localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(data.banners));
+            serverCategories = data.categories || [];
+            serverProducts = data.products || [];
+            serverBanners = data.banners || [];
+
+            safeStorageSet('busanNubi_customCategories', JSON.stringify(serverCategories));
+            safeStorageSet('busanNubi_customProducts', JSON.stringify(serverProducts));
+            safeStorageSet('busanNubi_customBanners', JSON.stringify(serverBanners));
         }
         refreshUI();
     }, (error) => {
@@ -1210,7 +1207,7 @@ function processFiles(files, type) {
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
-                const max_size = 1200;
+                const max_size = 800; // 용량 경량화를 위해 800px로 제한
 
                 if (width > height) {
                     if (width > max_size) {
@@ -1229,7 +1226,7 @@ function processFiles(files, type) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // 압축율 0.7
                 addPreviewImage(dataUrl, type);
             };
             img.src = e.target.result;
@@ -1960,9 +1957,12 @@ function deleteBanner(bannerId) {
 
 function resetCustomProducts() {
     if (!confirm('登録したすべてのデータを削除し、初期状態にリセットします。よろしいですか？')) return;
-    localStorage.removeItem(STORAGE_KEYS.categories);
-    localStorage.removeItem(STORAGE_KEYS.products);
-    localStorage.removeItem(STORAGE_KEYS.banners);
+    serverCategories = [];
+    serverProducts = [];
+    serverBanners = [];
+    localStorage.removeItem('busanNubi_customCategories');
+    localStorage.removeItem('busanNubi_customProducts');
+    localStorage.removeItem('busanNubi_customBanners');
     
     syncDataToFirebase();
     closeAdminModal();
