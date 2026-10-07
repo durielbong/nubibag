@@ -17,8 +17,6 @@
     <meta property="og:url" content="https://durielbong.github.io/nubibag/">
     <meta property="og:locale" content="ja_JP">
 
-    <meta name="google-site-verification" content="google-site-verification=kShXT84SMgEMJRQoJEmGeTPSootjHLY7vqE9zHYI684" />
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -628,82 +626,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const DEFAULT_CATEGORIES = [
-    {
-        id: 'cat-s-size',
-        title: 'Sサイズ ヌビバッグ',
-        subTitle: 'Nubi S-Size Bag',
-        desc: 'ちょっとしたお出かけやサブバッグに最適なミニサイズ。軽やかで日常使いにぴったりです。',
-        tag:   'Gukje Market',
-        mainImg: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
-    },
-    {
-        id: 'cat-m-size',
-        title: 'Mサイズ ヌビバッグ',
-        subTitle: 'Nubi M-Size Bag',
-        desc: 'A4サイズやポーチがしっかり収まる万能トート。通勤・通学・お買い物に大活躍します。',
-        tag: 'Gukje Market',
-        mainImg: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'
-    },
-    {
-        id: 'cat-l-size',
-        title: 'Lサイズ ヌビバッグ',
-        subTitle: 'Nubi L-Size Bag',
-        desc: 'マザーズバッグや一泊旅行にも使える大容量サイズ。軽量で肩への負担も軽減されます。',
-        tag: 'Gukje Market',
-        mainImg: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800'
-    },
-    {
-        id: 'cat-cosmetics',
-        title: '韓国コスメ Selection',
-        subTitle: 'Korean Beauty Cosmetics',
-        desc: '釜山・国際市場の実店舗で人気の高保湿スキンケアや注目の韓国コスメラインナップ。',
-        tag: 'Hanil Bubu Cosmetics',
-        mainImg: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800'
-    }
-];
-
-const DEFAULT_PRODUCTS = [
-    {
-        id: 'prod-s-1',
-        categoryId: 'cat-s-size',
-        title: 'Sサイズ ヌビトート (アイボリー)',
-        color: 'アイボリー',
-        size: 'W28cm x H20cm x D10cm',
-        desc: 'やわらかな手触りのコットンキルティング生地を使用したSサイズトート。軽快にお出かけを楽しめます。',
-        imgs: ['https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=600']
-    },
-    {
-        id: 'prod-m-1',
-        categoryId: 'cat-m-size',
-        title: 'Mサイズ ヌビトート (ベージュ)',
-        color: 'ベージュ',
-        size: 'W36cm x H26cm x D12cm',
-        desc: 'デイリーユースに一番人気のMサイズ。しっかりとした収容力と上品なカラーリングが特徴です。',
-        imgs: ['https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=600']
-    },
-    {
-        id: 'prod-cosme-1',
-        categoryId: 'cat-cosmetics',
-        title: 'アロセル (AROCELL) スキンケアセット',
-        color: 'アイボリー',
-        size: 'Standard Box',
-        desc: 'お肌にうるおいを与えるプレミアムスキンケア。釜山実店舗でも大人気の商品です。',
-        imgs: ['https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=600']
-    }
-];
-
-const DEFAULT_BANNERS = [
-    {
-        id: 'default-banner-1',
-        title: 'ふんわり軽くて優しい質感。\n釜山・国際市場のヌビバッグ専門店',
-        subTitle: 'Gukje Market',
-        desc: '韓国伝統のキルティング生地「ヌビ（イブル）」を使用したハンドメイドバッグと、厳選された人気韓国コスメを取り扱っております。',
-        img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=1200',
-        productIds: ['prod-s-1', 'prod-m-1']
-    }
-];
-
 const STORAGE_KEYS = {
     categories: 'busanNubi_customCategories',
     products: 'busanNubi_customProducts',
@@ -715,10 +637,10 @@ let uploadedProductImgs = [];
 function loadCustomCategories() {
     try { 
         const raw = localStorage.getItem(STORAGE_KEYS.categories);
-        if (raw === null) return [...DEFAULT_CATEGORIES];
+        if (!raw) return [];
         const parsed = JSON.parse(raw);
-        return (Array.isArray(parsed) && parsed.length > 0) ? parsed : [...DEFAULT_CATEGORIES];
-    } catch (e) { return [...DEFAULT_CATEGORIES]; }
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) { return []; }
 }
 
 function saveCustomCategories(list) {
@@ -732,16 +654,16 @@ function saveCustomCategories(list) {
 function loadCustomProducts() {
     try { 
         const raw = localStorage.getItem(STORAGE_KEYS.products);
-        if (raw === null) return [...DEFAULT_PRODUCTS];
+        if (!raw) return [];
         const list = JSON.parse(raw);
-        if (!Array.isArray(list) || list.length === 0) return [...DEFAULT_PRODUCTS];
+        if (!Array.isArray(list)) return [];
         return list.map(p => {
             if (!p.imgs) {
                 p.imgs = p.img ? [p.img] : [];
             }
             return p;
         });
-    } catch (e) { return [...DEFAULT_PRODUCTS]; }
+    } catch (e) { return []; }
 }
 
 function saveCustomProducts(list) {
@@ -755,10 +677,10 @@ function saveCustomProducts(list) {
 function loadCustomBanners() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.banners);
-        if (raw === null) return [...DEFAULT_BANNERS];
+        if (!raw) return [];
         const parsed = JSON.parse(raw);
-        return (Array.isArray(parsed) && parsed.length > 0) ? parsed : [...DEFAULT_BANNERS];
-    } catch (e) { return [...DEFAULT_BANNERS]; }
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) { return []; }
 }
 
 function saveCustomBanners(list) {
@@ -807,10 +729,6 @@ function initFirebaseListener() {
             if (data.categories) localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(data.categories));
             if (data.products) localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(data.products));
             if (data.banners) localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(data.banners));
-        } else {
-            if (isAdminMode) {
-                syncDataToFirebase();
-            }
         }
         refreshUI();
     }, (error) => {
@@ -892,7 +810,8 @@ function renderBanners() {
     dots.innerHTML = '';
 
     if (!banners || banners.length === 0) {
-        banners = DEFAULT_BANNERS;
+        slider.innerHTML = `<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs py-12">登録されたバナーはありません。</div>`;
+        return;
     }
 
     if (currentBannerIndex >= banners.length) currentBannerIndex = 0;
