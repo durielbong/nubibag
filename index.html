@@ -267,7 +267,7 @@ body {
 
             <div class="grid grid-cols-1 md:grid-cols-2">
                 <div class="bg-gray-50 p-6 flex flex-col justify-center items-center relative group min-h-[300px]">
-                    <div id="modal-slider-container" class="relative w-full h-72 sm:h-80 rounded-xl overflow-hidden shadow-md bg-white"></div>
+                    <div id="modal-slider-container" class="relative w-full h-72 sm:h-80 rounded-xl overflow-hidden shadow-md bg-white select-none cursor-grab active:cursor-grabbing"></div>
                     <button id="modal-prev-btn" onclick="prevProductSlide()" class="absolute left-8 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white text-gray-800 rounded-full flex items-center justify-center shadow-md transition opacity-0 group-hover:opacity-100 z-10">
                         <i class="fa-solid fa-chevron-left text-xs"></i>
                     </button>
@@ -744,6 +744,9 @@ let modalSlideImages = [];
 let currentModalSlideIndex = 0;
 let modalSlideTimer = null;
 
+let touchStartX = 0;
+let touchEndX = 0;
+
 function normalizeString(str) {
     if (!str) return '';
     return String(str).toLowerCase().replace(/[\s\-_]/g, '');
@@ -790,12 +793,55 @@ function initApp() {
     startBannerTimer();
     if (typeof populateAdminCategoryOptions === 'function') populateAdminCategoryOptions();
     setupDragAndDrop();
+    setupModalSwipeEvents();
 }
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
 } else {
     initApp();
+}
+
+function setupModalSwipeEvents() {
+    const container = document.getElementById('modal-slider-container');
+    if (!container) return;
+
+    container.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    container.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleModalSwipe();
+    }, { passive: true });
+
+    let isMouseDown = false;
+    container.addEventListener('mousedown', (e) => {
+        isMouseDown = true;
+        touchStartX = e.screenX;
+    });
+
+    container.addEventListener('mouseup', (e) => {
+        if (!isMouseDown) return;
+        isMouseDown = false;
+        touchEndX = e.screenX;
+        handleModalSwipe();
+    });
+
+    container.addEventListener('mouseleave', () => {
+        isMouseDown = false;
+    });
+}
+
+function handleModalSwipe() {
+    const swipeThreshold = 35;
+    if (touchEndX < touchStartX - swipeThreshold) {
+        nextProductSlide();
+        startModalSlideTimer();
+    } else if (touchEndX > touchStartX + swipeThreshold) {
+        prevProductSlide();
+        startModalSlideTimer();
+    }
 }
 
 function renderBanners() {
@@ -1099,6 +1145,7 @@ function renderModalSlider() {
         const img = document.createElement('img');
         img.src = src;
         img.alt = "Product Slide";
+        img.draggable = false;
         img.className = `absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${idx === currentModalSlideIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`;
         container.appendChild(img);
 
@@ -1207,7 +1254,7 @@ function processFiles(files, type) {
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
-                const max_size = 800; // 용량 경량화를 위해 800px로 제한
+                const max_size = 800;
 
                 if (width > height) {
                     if (width > max_size) {
@@ -1226,7 +1273,7 @@ function processFiles(files, type) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // 압축율 0.7
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
                 addPreviewImage(dataUrl, type);
             };
             img.src = e.target.result;
