@@ -716,8 +716,9 @@ function loadCustomCategories() {
     try { 
         const raw = localStorage.getItem(STORAGE_KEYS.categories);
         if (raw === null) return [...DEFAULT_CATEGORIES];
-        return JSON.parse(raw) || DEFAULT_CATEGORIES;
-    } catch (e) { return DEFAULT_CATEGORIES; }
+        const parsed = JSON.parse(raw);
+        return (Array.isArray(parsed) && parsed.length > 0) ? parsed : [...DEFAULT_CATEGORIES];
+    } catch (e) { return [...DEFAULT_CATEGORIES]; }
 }
 
 function saveCustomCategories(list) {
@@ -725,20 +726,22 @@ function saveCustomCategories(list) {
         localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(list)); 
         syncDataToFirebase();
     } catch (e) {}
+    refreshUI();
 }
 
 function loadCustomProducts() {
     try { 
         const raw = localStorage.getItem(STORAGE_KEYS.products);
         if (raw === null) return [...DEFAULT_PRODUCTS];
-        const list = JSON.parse(raw) || DEFAULT_PRODUCTS;
+        const list = JSON.parse(raw);
+        if (!Array.isArray(list) || list.length === 0) return [...DEFAULT_PRODUCTS];
         return list.map(p => {
             if (!p.imgs) {
                 p.imgs = p.img ? [p.img] : [];
             }
             return p;
         });
-    } catch (e) { return DEFAULT_PRODUCTS; }
+    } catch (e) { return [...DEFAULT_PRODUCTS]; }
 }
 
 function saveCustomProducts(list) {
@@ -746,14 +749,16 @@ function saveCustomProducts(list) {
         localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(list)); 
         syncDataToFirebase();
     } catch (e) {}
+    refreshUI();
 }
 
 function loadCustomBanners() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.banners);
         if (raw === null) return [...DEFAULT_BANNERS];
-        return JSON.parse(raw) || DEFAULT_BANNERS;
-    } catch (e) { return DEFAULT_BANNERS; }
+        const parsed = JSON.parse(raw);
+        return (Array.isArray(parsed) && parsed.length > 0) ? parsed : [...DEFAULT_BANNERS];
+    } catch (e) { return [...DEFAULT_BANNERS]; }
 }
 
 function saveCustomBanners(list) {
@@ -761,6 +766,7 @@ function saveCustomBanners(list) {
         localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(list)); 
         syncDataToFirebase();
     } catch (e) {}
+    refreshUI();
 }
 
 function syncDataToFirebase() {
@@ -770,6 +776,25 @@ function syncDataToFirebase() {
         banners: loadCustomBanners()
     };
     db.ref('storeData').set(payload);
+}
+
+function refreshUI() {
+    buildCategories();
+    renderCategories();
+    banners = loadCustomBanners();
+    renderBanners();
+
+    if (activeCategory) {
+        activeCategory = categories.find(c => c.id === activeCategory.id) || null;
+        if (activeCategory) renderCategoryItems();
+    }
+
+    if (document.getElementById('admin-tab-list') && !document.getElementById('admin-tab-list').classList.contains('hidden')) {
+        renderAdminProductsList();
+    }
+    if (document.getElementById('admin-tab-cat') && !document.getElementById('admin-tab-cat').classList.contains('hidden')) {
+        renderAdminCategoriesList();
+    }
 }
 
 function initFirebaseListener() {
@@ -784,23 +809,10 @@ function initFirebaseListener() {
                 syncDataToFirebase();
             }
         }
-        buildCategories();
-        renderCategories();
-        banners = loadCustomBanners();
-        renderBanners();
-
-        if (document.getElementById('admin-tab-list') && !document.getElementById('admin-tab-list').classList.contains('hidden')) {
-            renderAdminProductsList();
-        }
-        if (document.getElementById('admin-tab-cat') && !document.getElementById('admin-tab-cat').classList.contains('hidden')) {
-            renderAdminCategoriesList();
-        }
+        refreshUI();
     }, (error) => {
         console.error("Firebase read error:", error);
-        buildCategories();
-        renderCategories();
-        banners = loadCustomBanners();
-        renderBanners();
+        refreshUI();
     });
 }
 
@@ -821,7 +833,8 @@ function buildCategories() {
     const merged = customCategories.map(cat => ({ ...cat, items: [] }));
 
     customProducts.forEach(product => {
-        const target = merged.find(c => c.id === product.categoryId);
+        if (!product.categoryId) return;
+        const target = merged.find(c => String(c.id).trim() === String(product.categoryId).trim());
         if (target) {
             target.items.push(product);
         }
@@ -837,22 +850,14 @@ let activeColorFilter = 'all';
 function initApp() {
     if (typeof initAdminMode === 'function') initAdminMode();
     
-    // 1. 인앱 브라우저 로딩 지연 방지를 위해 즉시 로컬/기본 데이터로 1차 렌더링
-    buildCategories();
-    renderCategories();
-    banners = loadCustomBanners();
-    renderBanners();
-
-    // 2. Firebase 실시간 데이터 구독
+    refreshUI();
     initFirebaseListener();
     
-    // 3. 기타 타이머 및 UI 설정
     startBannerTimer();
     if (typeof populateAdminCategoryOptions === 'function') populateAdminCategoryOptions();
     setupDragAndDrop();
 }
 
-// DOM 접속 즉시 실행되도록 변경 (onload 지연 해결)
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
 } else {
@@ -1408,12 +1413,7 @@ function openAdminModal() {
 
 function closeAdminModal() {
     document.getElementById('admin-modal').classList.add('hidden');
-    buildCategories();
-    renderCategories();
-    if (activeCategory) {
-        activeCategory = categories.find(c => c.id === activeCategory.id) || null;
-        if (activeCategory) renderCategoryItems();
-    }
+    refreshUI();
 }
 
 function switchAdminTab(tabName) {
@@ -1546,12 +1546,8 @@ function handleCategoryFormSubmit(event) {
     }
 
     saveCustomCategories(customCategories);
-
-    buildCategories();
-    renderCategories();
     populateAdminCategoryOptions();
     renderAdminCategoriesList();
-
     resetCategoryForm();
 }
 
@@ -1646,15 +1642,7 @@ function handleAdminFormSubmit(event) {
     }
 
     saveCustomProducts(customProducts);
-
-    buildCategories();
-    renderCategories();
     populateAdminCategoryOptions();
-    if (activeCategory) {
-        activeCategory = categories.find(c => c.id === activeCategory.id) || null;
-        if (activeCategory) renderCategoryItems();
-    }
-
     closeAdminModal();
 }
 
@@ -1723,8 +1711,6 @@ function handleBannerFormSubmit(event) {
     }
 
     saveCustomBanners(customBanners);
-    banners = customBanners;
-    renderBanners();
     renderAdminBannersList();
     resetBannerForm();
 }
@@ -1927,9 +1913,6 @@ function moveCategoryOrder(index, direction) {
     customCategories[targetIndex] = temp;
 
     saveCustomCategories(customCategories);
-
-    buildCategories();
-    renderCategories();
     populateAdminCategoryOptions();
     renderAdminCategoriesList();
 
@@ -1960,7 +1943,7 @@ function renderAdminBannersList() {
                 </div>
             </div>
             <div class="flex items-center space-x-1 flex-shrink-0">
-                <button onclick="startEditBanner('${b.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition">
+                <button onclick="startEditProduct('${b.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition">
                     <i class="fa-solid fa-pen"></i> 編集
                 </button>
                 <button onclick="deleteBanner('${b.id}')" class="px-2.5 py-1 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-lg transition">
@@ -2002,14 +1985,6 @@ function deleteProduct(productId) {
     customProducts = customProducts.filter(p => p.id !== productId);
     saveCustomProducts(customProducts);
 
-    buildCategories();
-    renderCategories();
-    if (activeCategory) {
-        activeCategory = categories.find(c => c.id === activeCategory.id) || null;
-        if (activeCategory) renderCategoryItems();
-    }
-
-    renderAdminProductsList();
     showToast('商品を削除しました');
 }
 
@@ -2031,12 +2006,7 @@ function deleteCategory(categoryId) {
     customCategories = customCategories.filter(c => c.id !== categoryId);
     saveCustomCategories(customCategories);
 
-    buildCategories();
-    renderCategories();
     populateAdminCategoryOptions();
-    renderAdminCategoriesList();
-    renderAdminProductsList();
-
     showToast('カテゴリーを削除しました');
 }
 
@@ -2046,10 +2016,6 @@ function deleteBanner(bannerId) {
     let customBanners = loadCustomBanners();
     customBanners = customBanners.filter(b => b.id !== bannerId);
     saveCustomBanners(customBanners);
-
-    banners = customBanners;
-    renderBanners();
-    renderAdminBannersList();
 
     showToast('バナーを削除しました');
 }
