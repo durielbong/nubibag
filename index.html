@@ -834,21 +834,40 @@ function buildCategories() {
 let activeCategory = null;
 let activeColorFilter = 'all';
 
-window.onload = function () {
+function initApp() {
     if (typeof initAdminMode === 'function') initAdminMode();
+    
+    // 1. 인앱 브라우저 로딩 지연 방지를 위해 즉시 로컬/기본 데이터로 1차 렌더링
+    buildCategories();
+    renderCategories();
+    banners = loadCustomBanners();
+    renderBanners();
+
+    // 2. Firebase 실시간 데이터 구독
     initFirebaseListener();
+    
+    // 3. 기타 타이머 및 UI 설정
     startBannerTimer();
     if (typeof populateAdminCategoryOptions === 'function') populateAdminCategoryOptions();
     setupDragAndDrop();
-};
+}
+
+// DOM 접속 즉시 실행되도록 변경 (onload 지연 해결)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
 
 function renderBanners() {
     const slider = document.getElementById('banner-slider');
     const dots = document.getElementById('banner-dots');
+    if (!slider || !dots) return;
+    
     slider.innerHTML = '';
     dots.innerHTML = '';
 
-    if (banners.length === 0) {
+    if (!banners || banners.length === 0) {
         banners = DEFAULT_BANNERS;
     }
 
@@ -959,6 +978,7 @@ function openEventPage(bannerId) {
 
 function renderCategories() {
     const grid = document.getElementById('category-grid');
+    if (!grid) return;
     grid.innerHTML = '';
 
     if (categories.length === 0) {
