@@ -14,7 +14,7 @@
     <meta property="og:title" content="釜山国際市場 ヌビバッグ＆韓国コスメ専門店 | BUSAN NUBI">
     <meta property="og:description" content="釜山国際市場からお届けするハンドメイドヌビバッグと厳選韓国コスメ。実店舗へのアクセスもご案内。">
     <meta property="og:image" content="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=1200">
-    <meta property="og:url" content="https://사용자_github_username.github.io/리포지토리명/">
+    <meta property="og:url" content="https://durielbong.github.io/nubibag/">
     <meta property="og:locale" content="ja_JP">
 
     <meta name="google-site-verification" content="google-site-verification=kShXT84SMgEMJRQoJEmGeTPSootjHLY7vqE9zHYI684" />
@@ -716,7 +716,7 @@ function loadCustomCategories() {
     try { 
         const raw = localStorage.getItem(STORAGE_KEYS.categories);
         if (raw === null) return [...DEFAULT_CATEGORIES];
-        return JSON.parse(raw) || [];
+        return JSON.parse(raw) || DEFAULT_CATEGORIES;
     } catch (e) { return DEFAULT_CATEGORIES; }
 }
 
@@ -731,7 +731,7 @@ function loadCustomProducts() {
     try { 
         const raw = localStorage.getItem(STORAGE_KEYS.products);
         if (raw === null) return [...DEFAULT_PRODUCTS];
-        const list = JSON.parse(raw) || [];
+        const list = JSON.parse(raw) || DEFAULT_PRODUCTS;
         return list.map(p => {
             if (!p.imgs) {
                 p.imgs = p.img ? [p.img] : [];
@@ -752,7 +752,7 @@ function loadCustomBanners() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.banners);
         if (raw === null) return [...DEFAULT_BANNERS];
-        return JSON.parse(raw) || [];
+        return JSON.parse(raw) || DEFAULT_BANNERS;
     } catch (e) { return DEFAULT_BANNERS; }
 }
 
@@ -780,7 +780,9 @@ function initFirebaseListener() {
             if (data.products) localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(data.products));
             if (data.banners) localStorage.setItem(STORAGE_KEYS.banners, JSON.stringify(data.banners));
         } else {
-            syncDataToFirebase();
+            if (isAdminMode) {
+                syncDataToFirebase();
+            }
         }
         buildCategories();
         renderCategories();
@@ -793,6 +795,12 @@ function initFirebaseListener() {
         if (document.getElementById('admin-tab-cat') && !document.getElementById('admin-tab-cat').classList.contains('hidden')) {
             renderAdminCategoriesList();
         }
+    }, (error) => {
+        console.error("Firebase read error:", error);
+        buildCategories();
+        renderCategories();
+        banners = loadCustomBanners();
+        renderBanners();
     });
 }
 
