@@ -785,8 +785,11 @@ function refreshUI() {
     renderBanners();
 
     if (activeCategory) {
-        activeCategory = categories.find(c => c.id === activeCategory.id) || null;
-        if (activeCategory) renderCategoryItems();
+        const found = categories.find(c => matchCategoryId(c, activeCategory.id));
+        if (found) {
+            activeCategory = found;
+            renderCategoryItems();
+        }
     }
 
     if (document.getElementById('admin-tab-list') && !document.getElementById('admin-tab-list').classList.contains('hidden')) {
@@ -826,6 +829,20 @@ let modalSlideImages = [];
 let currentModalSlideIndex = 0;
 let modalSlideTimer = null;
 
+function normalizeString(str) {
+    if (!str) return '';
+    return String(str).toLowerCase().replace(/[\s\-_]/g, '');
+}
+
+function matchCategoryId(cat, targetIdOrTitle) {
+    if (!cat || !targetIdOrTitle) return false;
+    const targetNorm = normalizeString(targetIdOrTitle);
+    const catIdNorm = normalizeString(cat.id);
+    const catTitleNorm = normalizeString(cat.title);
+    
+    return catIdNorm === targetNorm || catTitleNorm === targetNorm || catIdNorm.includes(targetNorm) || targetNorm.includes(catIdNorm);
+}
+
 function buildCategories() {
     const customCategories = loadCustomCategories();
     const customProducts = loadCustomProducts();
@@ -834,9 +851,11 @@ function buildCategories() {
 
     customProducts.forEach(product => {
         if (!product.categoryId) return;
-        const target = merged.find(c => String(c.id).trim() === String(product.categoryId).trim());
+        const target = merged.find(c => matchCategoryId(c, product.categoryId));
         if (target) {
             target.items.push(product);
+        } else if (merged.length > 0) {
+            merged[0].items.push(product);
         }
     });
 
@@ -1011,7 +1030,7 @@ function renderCategories() {
                 </div>
             </div>
             <div class="px-5 pb-5 pt-2 border-t border-gray-100 flex items-center justify-between">
-                <span class="text-[11px] text-gray-400 font-medium">${cat.tag}</span>
+                <span class="text-[11px] text-gray-400 font-medium">${cat.tag || ''}</span>
                 <span class="text-xs text-brand-600 font-bold flex items-center">
                     詳細を見る <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
                 </span>
@@ -1022,7 +1041,7 @@ function renderCategories() {
 }
 
 function selectCategory(catId) {
-    activeCategory = categories.find(c => c.id === catId);
+    activeCategory = categories.find(c => matchCategoryId(c, catId));
     if (!activeCategory) return;
 
     activeColorFilter = 'all';
@@ -1771,7 +1790,7 @@ function populateBannerProductCheckboxes() {
     let allProducts = loadCustomProducts();
 
     if (selectedCatId !== 'all') {
-        allProducts = allProducts.filter(p => p.categoryId === selectedCatId);
+        allProducts = allProducts.filter(p => matchCategoryId({ id: selectedCatId, title: selectedCatId }, p.categoryId));
     }
 
     if (allProducts.length === 0) {
@@ -1820,7 +1839,7 @@ function renderAdminProductsList() {
     let customProducts = loadCustomProducts();
 
     if (selectedCatId !== 'all') {
-        customProducts = customProducts.filter(p => p.categoryId === selectedCatId);
+        customProducts = customProducts.filter(p => matchCategoryId({ id: selectedCatId, title: selectedCatId }, p.categoryId));
     }
 
     if (customProducts.length === 0) {
@@ -1943,7 +1962,7 @@ function renderAdminBannersList() {
                 </div>
             </div>
             <div class="flex items-center space-x-1 flex-shrink-0">
-                <button onclick="startEditProduct('${b.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition">
+                <button onclick="startEditBanner('${b.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition">
                     <i class="fa-solid fa-pen"></i> 編集
                 </button>
                 <button onclick="deleteBanner('${b.id}')" class="px-2.5 py-1 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-lg transition">
@@ -1990,13 +2009,13 @@ function deleteProduct(productId) {
 
 function deleteCategory(categoryId) {
     let customProducts = loadCustomProducts();
-    const categoryProducts = customProducts.filter(p => p.categoryId === categoryId);
+    const categoryProducts = customProducts.filter(p => matchCategoryId({ id: categoryId, title: categoryId }, p.categoryId));
 
     if (categoryProducts.length > 0) {
         if (!confirm(`このカテゴリーには ${categoryProducts.length}件の商品が登録されています。\nカテゴリーと一緒に登録されている商品も削除しますか？`)) {
             return;
         }
-        customProducts = customProducts.filter(p => p.categoryId !== categoryId);
+        customProducts = customProducts.filter(p => !matchCategoryId({ id: categoryId, title: categoryId }, p.categoryId));
         saveCustomProducts(customProducts);
     } else {
         if (!confirm('このカテゴリーを削除してもよろしいですか？')) return;
