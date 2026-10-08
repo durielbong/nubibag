@@ -38,23 +38,22 @@ function renderCategories() {
         card.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm card-hover cursor-pointer flex flex-col justify-between';
         card.onclick = () => selectCategory(cat.id);
 
-        card.innerHTML = `
-            <div>
-                <div class="h-60 sm:h-64 overflow-hidden bg-gray-100 relative">
-                    <img src="${cat.mainImg}" alt="${cat.title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
-                </div>
-                <div class="p-5">
-                    <h3 class="text-base sm:text-lg font-bold text-gray-900">${cat.title}</h3>
-                    <p class="text-xs text-gray-500 mt-2 leading-relaxed line-clamp-3">${cat.desc}</p>
-                </div>
-            </div>
-            <div class="px-5 pb-5 pt-2 border-t border-gray-100 flex items-center justify-between">
-                <span class="text-[11px] text-gray-400 font-medium">${cat.tag}</span>
-                <span class="text-xs text-brand-600 font-bold flex items-center">
-                    詳細を見る <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
-                </span>
-            </div>
-        `;
+      card.innerHTML = `
+    <div>
+        <div class="h-60 sm:h-64 overflow-hidden bg-gray-100 relative">
+            <img src="${cat.mainImg}" alt="${cat.title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+        </div>
+        <div class="p-5">
+            <h3 class="text-base sm:text-lg font-bold text-gray-900">${cat.title}</h3>
+            <p class="text-xs text-gray-500 mt-2 leading-relaxed line-clamp-3">${cat.desc}</p>
+        </div>
+    </div>
+    <div class="px-5 pb-5 pt-2 border-t border-gray-100 flex items-center justify-end">
+        <span class="text-xs text-brand-600 font-bold flex items-center">
+            詳細を見る <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
+        </span>
+    </div>
+`;
         grid.appendChild(card);
     });
 }
