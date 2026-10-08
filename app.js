@@ -20,20 +20,7 @@ window.onload = function () {
 // ------------------------------------------------------------
 // Render Homepage Category Cards
 // ------------------------------------------------------------
-function renderCategories() {
-    const grid = document.getElementById('category-grid');
-    grid.innerHTML = '';
-
-    if (categories.length === 0) {
-        grid.innerHTML = `
-            <div class="col-span-full text-center py-12 text-gray-400 text-xs">
-                現在カテゴリーがありません。
-            </div>
-        `;
-        return;
-    }
-
-   card.innerHTML = `
+card.innerHTML = `
     <div>
         <div class="h-60 sm:h-64 overflow-hidden bg-gray-100 relative">
             <img src="${cat.mainImg}" alt="${cat.title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
@@ -49,9 +36,6 @@ function renderCategories() {
         </span>
     </div>
 `;
-        grid.appendChild(card);
-    });
-}
 
 // ------------------------------------------------------------
 // Navigate to Specific Category Detail View
