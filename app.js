@@ -33,12 +33,7 @@ function renderCategories() {
         return;
     }
 
-    categories.forEach(cat => {
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm card-hover cursor-pointer flex flex-col justify-between';
-        card.onclick = () => selectCategory(cat.id);
-
-      card.innerHTML = `
+   card.innerHTML = `
     <div>
         <div class="h-60 sm:h-64 overflow-hidden bg-gray-100 relative">
             <img src="${cat.mainImg}" alt="${cat.title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
